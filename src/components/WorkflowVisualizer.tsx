@@ -121,7 +121,7 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
       >
         <Controls position="bottom-left" />
         <MiniMap 
-          position="top-right"
+          position="bottom-right"
           nodeColor={(node) => {
             const nodeData = node.data as NodeData | undefined;
             const hasError = nodeData?.hasError;
