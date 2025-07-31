@@ -1,0 +1,123 @@
+{
+  "states": [
+    {
+      "name": "ProcessInitial",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:27.937855+05:30",
+      "endTime": "2025-07-02T11:54:27.938209+05:30",
+      "output": {
+        "status": "started",
+        "timestamp": 1751437467.938138
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": null,
+            "query": "{ status: \"started\", timestamp: now }"
+          },
+          "startTime": "2025-07-02T11:54:27.937876+05:30",
+          "endTime": "2025-07-02T11:54:27.938171+05:30",
+          "output": {
+            "status": "started",
+            "timestamp": 1751437467.938138
+          }
+        }
+      ]
+    },
+    {
+      "name": "WaitShort",
+      "type": "sleep",
+      "startTime": "2025-07-02T11:54:27.938267+05:30",
+      "endTime": "2025-07-02T11:54:28.939711+05:30",
+      "input": {
+        "status": "started",
+        "timestamp": 1751437467.938138
+      },
+      "output": {
+        "status": "started",
+        "timestamp": 1751437467.938138
+      },
+      "sleepDuration": "1s"
+    },
+    {
+      "name": "ProcessIntermediate",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:28.939853+05:30",
+      "endTime": "2025-07-02T11:54:28.940612+05:30",
+      "input": {
+        "status": "started",
+        "timestamp": 1751437467.938138
+      },
+      "output": {
+        "status": "intermediate",
+        "timestamp": 1751437467.938138
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "status": "started",
+              "timestamp": 1751437467.938138
+            },
+            "query": ".status = \"intermediate\""
+          },
+          "startTime": "2025-07-02T11:54:28.939892+05:30",
+          "endTime": "2025-07-02T11:54:28.940496+05:30",
+          "output": {
+            "status": "intermediate",
+            "timestamp": 1751437467.938138
+          }
+        }
+      ]
+    },
+    {
+      "name": "WaitLong",
+      "type": "sleep",
+      "startTime": "2025-07-02T11:54:28.940674+05:30",
+      "endTime": "2025-07-02T11:54:30.952487+05:30",
+      "input": {
+        "status": "intermediate",
+        "timestamp": 1751437467.938138
+      },
+      "output": {
+        "status": "intermediate",
+        "timestamp": 1751437467.938138
+      },
+      "sleepDuration": "2s"
+    },
+    {
+      "name": "ProcessFinal",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:30.953026+05:30",
+      "endTime": "2025-07-02T11:54:30.953744+05:30",
+      "input": {
+        "status": "intermediate",
+        "timestamp": 1751437467.938138
+      },
+      "output": {
+        "status": "completed",
+        "timestamp": 1751437467.938138
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "status": "intermediate",
+              "timestamp": 1751437467.938138
+            },
+            "query": ".status = \"completed\""
+          },
+          "startTime": "2025-07-02T11:54:30.953063+05:30",
+          "endTime": "2025-07-02T11:54:30.953708+05:30",
+          "output": {
+            "status": "completed",
+            "timestamp": 1751437467.938138
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "states": [
+    {
+      "name": "ExtractUserData",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:21.603643+05:30",
+      "endTime": "2025-07-02T11:54:21.60377+05:30",
+      "input": {
+        "user": {
+          "email": "business@example.com",
+          "type": "business"
+        }
+      },
+      "output": {
+        "email": "business@example.com",
+        "type": "business"
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "user": {
+                "email": "business@example.com",
+                "type": "business"
+              }
+            },
+            "query": ".user"
+          },
+          "startTime": "2025-07-02T11:54:21.603657+05:30",
+          "endTime": "2025-07-02T11:54:21.60375+05:30",
+          "output": {
+            "email": "business@example.com",
+            "type": "business"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CheckUserType",
+      "type": "switch",
+      "startTime": "2025-07-02T11:54:21.603791+05:30",
+      "endTime": "2025-07-02T11:54:21.60383+05:30",
+      "input": {
+        "email": "business@example.com",
+        "type": "business"
+      },
+      "output": {
+        "email": "business@example.com",
+        "type": "business"
+      },
+      "matchedCondition": "CheckBusiness"
+    },
+    {
+      "name": "BusinessUserProcess",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:21.603854+05:30",
+      "endTime": "2025-07-02T11:54:21.834034+05:30",
+      "input": {
+        "email": "business@example.com",
+        "type": "business"
+      },
+      "output": {
+        "body": "{\"args\":{},\"data\":{\"email\":\"business@example.com\",\"type\":\"business\"},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"50\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"email\":\"business@example.com\",\"type\":\"business\"},\"url\":\"https://postman-echo.com/post\"}",
+        "headers": {
+          "Content-Length": "367",
+          "Content-Type": "application/json; charset=utf-8",
+          "Date": "Wed, 02 Jul 2025 06:24:21 GMT",
+          "Etag": "W/\"16f-Srvt9UrNnoPW/+2W1lz0UKr4wDI\"",
+          "Server": "istio-envoy",
+          "Set-Cookie": "sails.sid=s%3AYw6d-cbtI0smr2g9R9LceNxi1mCydC21.8XEYHwA4XsWTjzNL7%2FU1scoRoDv%2Bf%2B5hDCrOlzgPnwg; Path=/; HttpOnly",
+          "Vary": "Accept-Encoding",
+          "X-Envoy-Upstream-Service-Time": "3"
+        },
+        "statusCode": 200
+      },
+      "actions": [
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "body": {
+              "email": "business@example.com",
+              "type": "business"
+            },
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "method": "POST",
+            "timeoutSec": 5,
+            "url": "https://postman-echo.com/post"
+          },
+          "startTime": "2025-07-02T11:54:21.603861+05:30",
+          "endTime": "2025-07-02T11:54:21.83396+05:30",
+          "output": {
+            "body": "{\"args\":{},\"data\":{\"email\":\"business@example.com\",\"type\":\"business\"},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"50\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"email\":\"business@example.com\",\"type\":\"business\"},\"url\":\"https://postman-echo.com/post\"}",
+            "headers": {
+              "Content-Length": "367",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "Wed, 02 Jul 2025 06:24:21 GMT",
+              "Etag": "W/\"16f-Srvt9UrNnoPW/+2W1lz0UKr4wDI\"",
+              "Server": "istio-envoy",
+              "Set-Cookie": "sails.sid=s%3AYw6d-cbtI0smr2g9R9LceNxi1mCydC21.8XEYHwA4XsWTjzNL7%2FU1scoRoDv%2Bf%2B5hDCrOlzgPnwg; Path=/; HttpOnly",
+              "Vary": "Accept-Encoding",
+              "X-Envoy-Upstream-Service-Time": "3"
+            },
+            "statusCode": 200
+          }
+        }
+      ]
+    }
+  ]
+}

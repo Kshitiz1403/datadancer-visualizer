@@ -9,22 +9,30 @@ import {
 } from '@xyflow/react';
 import type { NodeTypes } from '@xyflow/react';
 import WorkflowNode from './WorkflowNode';
-import type { WorkflowDebugData, NodeData } from '../types';
-import { parseWorkflowData } from '../utils/workflowParser';
+import type { WorkflowDebugData, CombinedWorkflowData, NodeData } from '../types';
+import { parseWorkflowData, parseCombinedWorkflowData } from '../utils/workflowParser';
 
 interface WorkflowVisualizerProps {
-  data: WorkflowDebugData;
+  data: WorkflowDebugData | CombinedWorkflowData;
 }
 
 const nodeTypes: NodeTypes = {
   workflowNode: WorkflowNode,
 };
 
+// Type guard to check if data is CombinedWorkflowData
+const isCombinedWorkflowData = (data: WorkflowDebugData | CombinedWorkflowData): data is CombinedWorkflowData => {
+  return 'definition' in data && 'startState' in data;
+};
+
 const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => parseWorkflowData(data),
-    [data]
-  );
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+    if (isCombinedWorkflowData(data)) {
+      return parseCombinedWorkflowData(data);
+    } else {
+      return parseWorkflowData(data);
+    }
+  }, [data]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -32,7 +40,10 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
 
   // Update nodes and edges when data changes
   React.useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = parseWorkflowData(data);
+    const { nodes: newNodes, edges: newEdges } = isCombinedWorkflowData(data)
+      ? parseCombinedWorkflowData(data)
+      : parseWorkflowData(data);
+    
     setNodes(newNodes);
     setEdges(newEdges);
     
@@ -77,8 +88,12 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
           nodeColor={(node) => {
             const nodeData = node.data as NodeData | undefined;
             const hasError = nodeData?.hasError;
+            const wasExecuted = nodeData?.wasExecuted ?? true;
             const type = nodeData?.state?.type;
+            
             if (hasError) return '#ef4444';
+            if (!wasExecuted) return '#9ca3af';
+            
             switch (type) {
               case 'operation': return '#10b981';
               case 'switch': return '#f59e0b';

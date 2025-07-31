@@ -1,0 +1,40 @@
+{
+  "states": [
+    {
+      "name": "ProcessInitial",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:31.221588+05:30",
+      "endTime": "2025-07-02T11:54:31.222365+05:30",
+      "output": {
+        "status": "started",
+        "timestamp": 1751437471.222151
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": null,
+            "query": "{ status: \"started\", timestamp: now }"
+          },
+          "startTime": "2025-07-02T11:54:31.221628+05:30",
+          "endTime": "2025-07-02T11:54:31.22231+05:30",
+          "output": {
+            "status": "started",
+            "timestamp": 1751437471.222151
+          }
+        }
+      ]
+    },
+    {
+      "name": "WaitShort",
+      "type": "sleep",
+      "startTime": "2025-07-02T11:54:31.222503+05:30",
+      "endTime": "2025-07-02T11:54:31.22269+05:30",
+      "input": {
+        "status": "started",
+        "timestamp": 1751437471.222151
+      },
+      "error": "[EXPRESSION_INVALID] Invalid sleep duration (State: WaitShort) - caused by: unexpected input"
+    }
+  ]
+}

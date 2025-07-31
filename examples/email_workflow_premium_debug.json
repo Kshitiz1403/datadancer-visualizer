@@ -1,0 +1,112 @@
+{
+  "states": [
+    {
+      "name": "ExtractUserData",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:20.828836+05:30",
+      "endTime": "2025-07-02T11:54:20.828946+05:30",
+      "input": {
+        "user": {
+          "email": "premium@example.com",
+          "type": "premium"
+        }
+      },
+      "output": {
+        "email": "premium@example.com",
+        "type": "premium"
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "user": {
+                "email": "premium@example.com",
+                "type": "premium"
+              }
+            },
+            "query": ".user"
+          },
+          "startTime": "2025-07-02T11:54:20.828845+05:30",
+          "endTime": "2025-07-02T11:54:20.828929+05:30",
+          "output": {
+            "email": "premium@example.com",
+            "type": "premium"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CheckUserType",
+      "type": "switch",
+      "startTime": "2025-07-02T11:54:20.828971+05:30",
+      "endTime": "2025-07-02T11:54:20.829029+05:30",
+      "input": {
+        "email": "premium@example.com",
+        "type": "premium"
+      },
+      "output": {
+        "email": "premium@example.com",
+        "type": "premium"
+      },
+      "matchedCondition": "CheckPremium"
+    },
+    {
+      "name": "PremiumUserProcess",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:20.829073+05:30",
+      "endTime": "2025-07-02T11:54:21.59222+05:30",
+      "input": {
+        "email": "premium@example.com",
+        "type": "premium"
+      },
+      "output": {
+        "body": "{\"args\":{},\"data\":{\"email\":\"premium@example.com\",\"type\":\"premium\"},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"48\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"email\":\"premium@example.com\",\"type\":\"premium\"},\"url\":\"https://postman-echo.com/post\"}",
+        "headers": {
+          "Content-Length": "363",
+          "Content-Type": "application/json; charset=utf-8",
+          "Date": "Wed, 02 Jul 2025 06:24:21 GMT",
+          "Etag": "W/\"16b-ec/g7vdQvWi8WmDQzRZAXv3F1fw\"",
+          "Server": "istio-envoy",
+          "Set-Cookie": "sails.sid=s%3AWbeHvoOpEEZ4ijYYMqKMkIbQB5LG14RN.laEFRBXhhKCB4yzNNREbvhFdHxNIvgFNk13uVPFcoT0; Path=/; HttpOnly",
+          "Vary": "Accept-Encoding",
+          "X-Envoy-Upstream-Service-Time": "5"
+        },
+        "statusCode": 200
+      },
+      "actions": [
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "body": {
+              "email": "premium@example.com",
+              "type": "premium"
+            },
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "method": "POST",
+            "timeoutSec": 5,
+            "url": "https://postman-echo.com/post"
+          },
+          "startTime": "2025-07-02T11:54:20.829084+05:30",
+          "endTime": "2025-07-02T11:54:21.592184+05:30",
+          "output": {
+            "body": "{\"args\":{},\"data\":{\"email\":\"premium@example.com\",\"type\":\"premium\"},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"48\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"email\":\"premium@example.com\",\"type\":\"premium\"},\"url\":\"https://postman-echo.com/post\"}",
+            "headers": {
+              "Content-Length": "363",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "Wed, 02 Jul 2025 06:24:21 GMT",
+              "Etag": "W/\"16b-ec/g7vdQvWi8WmDQzRZAXv3F1fw\"",
+              "Server": "istio-envoy",
+              "Set-Cookie": "sails.sid=s%3AWbeHvoOpEEZ4ijYYMqKMkIbQB5LG14RN.laEFRBXhhKCB4yzNNREbvhFdHxNIvgFNk13uVPFcoT0; Path=/; HttpOnly",
+              "Vary": "Accept-Encoding",
+              "X-Envoy-Upstream-Service-Time": "5"
+            },
+            "statusCode": 200
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -23,10 +23,77 @@ export interface WorkflowDebugData {
   states: WorkflowState[];
 }
 
+// New types for workflow definitions
+export interface WorkflowDefinitionAction {
+  functionRef: {
+    refName: string;
+    arguments: Record<string, any>;
+  };
+}
+
+export interface WorkflowCondition {
+  name: string;
+  condition: string;
+  transition: {
+    nextState: string;
+  };
+}
+
+export interface WorkflowDefinitionState {
+  name: string;
+  type: 'operation' | 'switch' | string;
+  actions?: WorkflowDefinitionAction[];
+  transition?: {
+    nextState: string;
+  } | string;
+  dataConditions?: WorkflowCondition[];
+  defaultCondition?: {
+    transition: {
+      nextState: string;
+    };
+  };
+  end?: boolean;
+}
+
+export interface WorkflowDefinition {
+  version: string;
+  specVersion: string;
+  id: string;
+  name: string;
+  description: string;
+  start: string;
+  states: WorkflowDefinitionState[];
+}
+
+// Combined data type that merges definition with execution
+export interface CombinedWorkflowState {
+  name: string;
+  type: 'operation' | 'switch' | string;
+  
+  // From definition (always present)
+  definition: WorkflowDefinitionState;
+  
+  // From execution (only present if this state was executed)
+  execution?: WorkflowState;
+  
+  // Derived properties
+  wasExecuted: boolean;
+  hasError: boolean;
+  duration?: number;
+}
+
+export interface CombinedWorkflowData {
+  definition: WorkflowDefinition;
+  execution?: WorkflowDebugData;
+  states: CombinedWorkflowState[];
+  startState: string;
+}
+
 export interface NodeData {
   label: string;
-  state: WorkflowState;
+  state: CombinedWorkflowState;
   duration: number;
   hasError: boolean;
+  wasExecuted: boolean;
   [key: string]: unknown;
 } 

@@ -1,0 +1,99 @@
+{
+  "states": [
+    {
+      "name": "PrepareInput",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:20.817799+05:30",
+      "endTime": "2025-07-02T11:54:20.818162+05:30",
+      "input": {
+        "input": {
+          "message": "test input"
+        }
+      },
+      "output": {
+        "data": {
+          "message": "test input"
+        },
+        "message": "Processing request"
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "input": {
+                "message": "test input"
+              }
+            },
+            "query": "{ message: \"Processing request\", data: .input }"
+          },
+          "startTime": "2025-07-02T11:54:20.817808+05:30",
+          "endTime": "2025-07-02T11:54:20.818139+05:30",
+          "output": {
+            "data": {
+              "message": "test input"
+            },
+            "message": "Processing request"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ExecuteHelloWorld",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:20.818188+05:30",
+      "endTime": "2025-07-02T11:54:20.818269+05:30",
+      "input": {
+        "data": {
+          "message": "test input"
+        },
+        "message": "Processing request"
+      },
+      "output": "hello world",
+      "actions": [
+        {
+          "activityName": "HelloWorld",
+          "arguments": {
+            "input": {
+              "data": {
+                "message": "test input"
+              },
+              "message": "Processing request"
+            }
+          },
+          "startTime": "2025-07-02T11:54:20.818196+05:30",
+          "endTime": "2025-07-02T11:54:20.818258+05:30",
+          "output": "hello world"
+        }
+      ]
+    },
+    {
+      "name": "FormatOutput",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:20.818291+05:30",
+      "endTime": "2025-07-02T11:54:20.818393+05:30",
+      "input": "hello world",
+      "output": {
+        "result": "hello world",
+        "status": "success",
+        "timestamp": 1751437460.818348
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": "hello world",
+            "query": "{ status: \"success\", result: ., timestamp: now }"
+          },
+          "startTime": "2025-07-02T11:54:20.8183+05:30",
+          "endTime": "2025-07-02T11:54:20.818377+05:30",
+          "output": {
+            "result": "hello world",
+            "status": "success",
+            "timestamp": 1751437460.818348
+          }
+        }
+      ]
+    }
+  ]
+}

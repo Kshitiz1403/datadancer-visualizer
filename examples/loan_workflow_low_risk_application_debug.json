@@ -1,0 +1,708 @@
+{
+  "states": [
+    {
+      "name": "ExtractApplication",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:27.286852+05:30",
+      "endTime": "2025-07-02T11:54:27.287365+05:30",
+      "input": {
+        "application": {
+          "id": 12347,
+          "loan": {
+            "amount": 150000,
+            "purpose": "business",
+            "term": 36
+          },
+          "user": {
+            "id": "USER125",
+            "income": 200000,
+            "name": "Alice Johnson"
+          }
+        }
+      },
+      "output": {
+        "applicant": {
+          "id": "USER125",
+          "income": 200000,
+          "name": "Alice Johnson"
+        },
+        "applicationId": "12347",
+        "loan": {
+          "amount": 150000,
+          "purpose": "business",
+          "term": 36
+        },
+        "timestamp": 1751437467.287271
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "application": {
+                "id": 12347,
+                "loan": {
+                  "amount": 150000,
+                  "purpose": "business",
+                  "term": 36
+                },
+                "user": {
+                  "id": "USER125",
+                  "income": 200000,
+                  "name": "Alice Johnson"
+                }
+              }
+            },
+            "query": "{ applicant: .application.user, loan: .application.loan, applicationId: (.application.id | tostring), timestamp: now }"
+          },
+          "startTime": "2025-07-02T11:54:27.286885+05:30",
+          "endTime": "2025-07-02T11:54:27.287311+05:30",
+          "output": {
+            "applicant": {
+              "id": "USER125",
+              "income": 200000,
+              "name": "Alice Johnson"
+            },
+            "applicationId": "12347",
+            "loan": {
+              "amount": 150000,
+              "purpose": "business",
+              "term": 36
+            },
+            "timestamp": 1751437467.287271
+          }
+        }
+      ]
+    },
+    {
+      "name": "EnrichUserData",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:27.287441+05:30",
+      "endTime": "2025-07-02T11:54:27.595398+05:30",
+      "input": {
+        "applicant": {
+          "id": "USER125",
+          "income": 200000,
+          "name": "Alice Johnson"
+        },
+        "applicationId": "12347",
+        "loan": {
+          "amount": 150000,
+          "purpose": "business",
+          "term": 36
+        },
+        "timestamp": 1751437467.287271
+      },
+      "output": {
+        "enriched": {
+          "args": {},
+          "headers": {
+            "accept-encoding": "gzip",
+            "host": "postman-echo.com",
+            "user-agent": "Go-http-client/2.0",
+            "x-forwarded-proto": "https",
+            "x-user-id": "USER125"
+          },
+          "url": "https://postman-echo.com/get"
+        },
+        "meta": {
+          "requestId": "12347"
+        },
+        "user": {
+          "id": "USER125",
+          "income": 200000,
+          "name": "Alice Johnson"
+        }
+      },
+      "actions": [
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "headers": {
+              "X-Request-ID": "12347",
+              "X-User-ID": "USER125"
+            },
+            "method": "GET",
+            "url": "https://postman-echo.com/get"
+          },
+          "startTime": "2025-07-02T11:54:27.287464+05:30",
+          "endTime": "2025-07-02T11:54:27.592989+05:30",
+          "output": {
+            "body": "{\"args\":{},\"headers\":{\"host\":\"postman-echo.com\",\"x-user-id\":\"USER125\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"url\":\"https://postman-echo.com/get\"}",
+            "headers": {
+              "Content-Length": "195",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+              "Etag": "W/\"c3-ErTvkvOLGFJhFe1BMnGs6jHqbwY\"",
+              "Server": "istio-envoy",
+              "Set-Cookie": "sails.sid=s%3AIvsslEmfB_cFzQsNH0rt44wooeSaTMe6.%2FjJLytTpiY%2FUEw2M%2B69GCy5EcaxQ%2F8xa5ADoII3qK9o; Path=/; HttpOnly",
+              "Vary": "Accept-Encoding",
+              "X-Envoy-Upstream-Service-Time": "4"
+            },
+            "statusCode": 200
+          }
+        },
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "current": {
+                "body": "{\"args\":{},\"headers\":{\"host\":\"postman-echo.com\",\"x-user-id\":\"USER125\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"url\":\"https://postman-echo.com/get\"}",
+                "headers": {
+                  "Content-Length": "195",
+                  "Content-Type": "application/json; charset=utf-8",
+                  "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+                  "Etag": "W/\"c3-ErTvkvOLGFJhFe1BMnGs6jHqbwY\"",
+                  "Server": "istio-envoy",
+                  "Set-Cookie": "sails.sid=s%3AIvsslEmfB_cFzQsNH0rt44wooeSaTMe6.%2FjJLytTpiY%2FUEw2M%2B69GCy5EcaxQ%2F8xa5ADoII3qK9o; Path=/; HttpOnly",
+                  "Vary": "Accept-Encoding",
+                  "X-Envoy-Upstream-Service-Time": "4"
+                },
+                "statusCode": 200
+              },
+              "globals": {},
+              "initial": {
+                "application": {
+                  "id": 12347,
+                  "loan": {
+                    "amount": 150000,
+                    "purpose": "business",
+                    "term": 36
+                  },
+                  "user": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  }
+                }
+              },
+              "states": {
+                "ApproveApplication": {
+                  "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+                  "headers": {
+                    "Content-Length": "502",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+                    "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+                    "Server": "istio-envoy",
+                    "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+                    "Vary": "Accept-Encoding",
+                    "X-Envoy-Upstream-Service-Time": "4"
+                  },
+                  "statusCode": 200
+                },
+                "CalculateRiskScore": {
+                  "factors": {
+                    "amount": 150000,
+                    "history": null,
+                    "income": 200000
+                  },
+                  "score": 133
+                },
+                "EnrichUserData": {
+                  "enriched": {
+                    "args": {},
+                    "headers": {
+                      "accept-encoding": "gzip",
+                      "host": "postman-echo.com",
+                      "user-agent": "Go-http-client/2.0",
+                      "x-forwarded-proto": "https",
+                      "x-user-id": "USER125"
+                    },
+                    "url": "https://postman-echo.com/get"
+                  },
+                  "meta": {
+                    "requestId": "12347"
+                  },
+                  "user": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  }
+                },
+                "EvaluateApplication": {
+                  "factors": {
+                    "amount": 150000,
+                    "history": null,
+                    "income": 200000
+                  },
+                  "score": 133
+                },
+                "ExtractApplication": {
+                  "applicant": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  },
+                  "applicationId": "12347",
+                  "loan": {
+                    "amount": 150000,
+                    "purpose": "business",
+                    "term": 36
+                  },
+                  "timestamp": 1751437467.287271
+                },
+                "GetResponseBody": {
+                  "applicationId": "12347",
+                  "approvedAmount": 150000,
+                  "decision": "approved",
+                  "riskScore": 133,
+                  "timestamp": 1751437467.596806
+                }
+              }
+            },
+            "query": "{ user: .states.ExtractApplication.applicant, enriched: .current.body | fromjson, meta: { requestId: .states.ExtractApplication.applicationId } }"
+          },
+          "startTime": "2025-07-02T11:54:27.593029+05:30",
+          "endTime": "2025-07-02T11:54:27.595265+05:30",
+          "output": {
+            "enriched": {
+              "args": {},
+              "headers": {
+                "accept-encoding": "gzip",
+                "host": "postman-echo.com",
+                "user-agent": "Go-http-client/2.0",
+                "x-forwarded-proto": "https",
+                "x-user-id": "USER125"
+              },
+              "url": "https://postman-echo.com/get"
+            },
+            "meta": {
+              "requestId": "12347"
+            },
+            "user": {
+              "id": "USER125",
+              "income": 200000,
+              "name": "Alice Johnson"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CalculateRiskScore",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:27.595769+05:30",
+      "endTime": "2025-07-02T11:54:27.596242+05:30",
+      "input": {
+        "enriched": {
+          "args": {},
+          "headers": {
+            "accept-encoding": "gzip",
+            "host": "postman-echo.com",
+            "user-agent": "Go-http-client/2.0",
+            "x-forwarded-proto": "https",
+            "x-user-id": "USER125"
+          },
+          "url": "https://postman-echo.com/get"
+        },
+        "meta": {
+          "requestId": "12347"
+        },
+        "user": {
+          "id": "USER125",
+          "income": 200000,
+          "name": "Alice Johnson"
+        }
+      },
+      "output": {
+        "factors": {
+          "amount": 150000,
+          "history": null,
+          "income": 200000
+        },
+        "score": 133
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "current": {
+                "enriched": {
+                  "args": {},
+                  "headers": {
+                    "accept-encoding": "gzip",
+                    "host": "postman-echo.com",
+                    "user-agent": "Go-http-client/2.0",
+                    "x-forwarded-proto": "https",
+                    "x-user-id": "USER125"
+                  },
+                  "url": "https://postman-echo.com/get"
+                },
+                "meta": {
+                  "requestId": "12347"
+                },
+                "user": {
+                  "id": "USER125",
+                  "income": 200000,
+                  "name": "Alice Johnson"
+                }
+              },
+              "globals": {},
+              "initial": {
+                "application": {
+                  "id": 12347,
+                  "loan": {
+                    "amount": 150000,
+                    "purpose": "business",
+                    "term": 36
+                  },
+                  "user": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  }
+                }
+              },
+              "states": {
+                "ApproveApplication": {
+                  "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+                  "headers": {
+                    "Content-Length": "502",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+                    "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+                    "Server": "istio-envoy",
+                    "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+                    "Vary": "Accept-Encoding",
+                    "X-Envoy-Upstream-Service-Time": "4"
+                  },
+                  "statusCode": 200
+                },
+                "CalculateRiskScore": {
+                  "factors": {
+                    "amount": 150000,
+                    "history": null,
+                    "income": 200000
+                  },
+                  "score": 133
+                },
+                "EnrichUserData": {
+                  "enriched": {
+                    "args": {},
+                    "headers": {
+                      "accept-encoding": "gzip",
+                      "host": "postman-echo.com",
+                      "user-agent": "Go-http-client/2.0",
+                      "x-forwarded-proto": "https",
+                      "x-user-id": "USER125"
+                    },
+                    "url": "https://postman-echo.com/get"
+                  },
+                  "meta": {
+                    "requestId": "12347"
+                  },
+                  "user": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  }
+                },
+                "EvaluateApplication": {
+                  "factors": {
+                    "amount": 150000,
+                    "history": null,
+                    "income": 200000
+                  },
+                  "score": 133
+                },
+                "ExtractApplication": {
+                  "applicant": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  },
+                  "applicationId": "12347",
+                  "loan": {
+                    "amount": 150000,
+                    "purpose": "business",
+                    "term": 36
+                  },
+                  "timestamp": 1751437467.287271
+                },
+                "GetResponseBody": {
+                  "applicationId": "12347",
+                  "approvedAmount": 150000,
+                  "decision": "approved",
+                  "riskScore": 133,
+                  "timestamp": 1751437467.596806
+                }
+              }
+            },
+            "query": "{ score: (.states.ExtractApplication.applicant.income / .states.ExtractApplication.loan.amount * 100 | floor), factors: { income: .states.ExtractApplication.applicant.income, amount: .states.ExtractApplication.loan.amount, history: .states.EnrichUserData.enriched.creditHistory } }"
+          },
+          "startTime": "2025-07-02T11:54:27.595797+05:30",
+          "endTime": "2025-07-02T11:54:27.5962+05:30",
+          "output": {
+            "factors": {
+              "amount": 150000,
+              "history": null,
+              "income": 200000
+            },
+            "score": 133
+          }
+        }
+      ]
+    },
+    {
+      "name": "EvaluateApplication",
+      "type": "switch",
+      "startTime": "2025-07-02T11:54:27.596313+05:30",
+      "endTime": "2025-07-02T11:54:27.596461+05:30",
+      "input": {
+        "factors": {
+          "amount": 150000,
+          "history": null,
+          "income": 200000
+        },
+        "score": 133
+      },
+      "output": {
+        "factors": {
+          "amount": 150000,
+          "history": null,
+          "income": 200000
+        },
+        "score": 133
+      },
+      "matchedCondition": "default"
+    },
+    {
+      "name": "ApproveApplication",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:27.596542+05:30",
+      "endTime": "2025-07-02T11:54:27.912938+05:30",
+      "input": {
+        "factors": {
+          "amount": 150000,
+          "history": null,
+          "income": 200000
+        },
+        "score": 133
+      },
+      "output": {
+        "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+        "headers": {
+          "Content-Length": "502",
+          "Content-Type": "application/json; charset=utf-8",
+          "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+          "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+          "Server": "istio-envoy",
+          "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+          "Vary": "Accept-Encoding",
+          "X-Envoy-Upstream-Service-Time": "4"
+        },
+        "statusCode": 200
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "current": {
+                "factors": {
+                  "amount": 150000,
+                  "history": null,
+                  "income": 200000
+                },
+                "score": 133
+              },
+              "globals": {},
+              "initial": {
+                "application": {
+                  "id": 12347,
+                  "loan": {
+                    "amount": 150000,
+                    "purpose": "business",
+                    "term": 36
+                  },
+                  "user": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  }
+                }
+              },
+              "states": {
+                "ApproveApplication": {
+                  "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+                  "headers": {
+                    "Content-Length": "502",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+                    "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+                    "Server": "istio-envoy",
+                    "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+                    "Vary": "Accept-Encoding",
+                    "X-Envoy-Upstream-Service-Time": "4"
+                  },
+                  "statusCode": 200
+                },
+                "CalculateRiskScore": {
+                  "factors": {
+                    "amount": 150000,
+                    "history": null,
+                    "income": 200000
+                  },
+                  "score": 133
+                },
+                "EnrichUserData": {
+                  "enriched": {
+                    "args": {},
+                    "headers": {
+                      "accept-encoding": "gzip",
+                      "host": "postman-echo.com",
+                      "user-agent": "Go-http-client/2.0",
+                      "x-forwarded-proto": "https",
+                      "x-user-id": "USER125"
+                    },
+                    "url": "https://postman-echo.com/get"
+                  },
+                  "meta": {
+                    "requestId": "12347"
+                  },
+                  "user": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  }
+                },
+                "EvaluateApplication": {
+                  "factors": {
+                    "amount": 150000,
+                    "history": null,
+                    "income": 200000
+                  },
+                  "score": 133
+                },
+                "ExtractApplication": {
+                  "applicant": {
+                    "id": "USER125",
+                    "income": 200000,
+                    "name": "Alice Johnson"
+                  },
+                  "applicationId": "12347",
+                  "loan": {
+                    "amount": 150000,
+                    "purpose": "business",
+                    "term": 36
+                  },
+                  "timestamp": 1751437467.287271
+                },
+                "GetResponseBody": {
+                  "applicationId": "12347",
+                  "approvedAmount": 150000,
+                  "decision": "approved",
+                  "riskScore": 133,
+                  "timestamp": 1751437467.596806
+                }
+              }
+            },
+            "query": "{ decision: \"approved\", applicationId: .states.ExtractApplication.applicationId, riskScore: .states.CalculateRiskScore.score, approvedAmount: .states.ExtractApplication.loan.amount, timestamp: now }"
+          },
+          "startTime": "2025-07-02T11:54:27.596569+05:30",
+          "endTime": "2025-07-02T11:54:27.596842+05:30",
+          "output": {
+            "applicationId": "12347",
+            "approvedAmount": 150000,
+            "decision": "approved",
+            "riskScore": 133,
+            "timestamp": 1751437467.596806
+          }
+        },
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "body": {
+              "applicationId": "12347",
+              "approvedAmount": 150000,
+              "decision": "approved",
+              "riskScore": 133,
+              "timestamp": 1751437467.596806
+            },
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "method": "POST",
+            "url": "https://postman-echo.com/post"
+          },
+          "startTime": "2025-07-02T11:54:27.596866+05:30",
+          "endTime": "2025-07-02T11:54:27.91285+05:30",
+          "output": {
+            "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+            "headers": {
+              "Content-Length": "502",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+              "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+              "Server": "istio-envoy",
+              "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+              "Vary": "Accept-Encoding",
+              "X-Envoy-Upstream-Service-Time": "4"
+            },
+            "statusCode": 200
+          }
+        }
+      ]
+    },
+    {
+      "name": "GetResponseBody",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:27.913045+05:30",
+      "endTime": "2025-07-02T11:54:27.913683+05:30",
+      "input": {
+        "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+        "headers": {
+          "Content-Length": "502",
+          "Content-Type": "application/json; charset=utf-8",
+          "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+          "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+          "Server": "istio-envoy",
+          "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+          "Vary": "Accept-Encoding",
+          "X-Envoy-Upstream-Service-Time": "4"
+        },
+        "statusCode": 200
+      },
+      "output": {
+        "applicationId": "12347",
+        "approvedAmount": 150000,
+        "decision": "approved",
+        "riskScore": 133,
+        "timestamp": 1751437467.596806
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "body": "{\"args\":{},\"data\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"files\":{},\"form\":{},\"headers\":{\"host\":\"postman-echo.com\",\"content-type\":\"application/json\",\"content-length\":\"117\",\"accept-encoding\":\"gzip\",\"user-agent\":\"Go-http-client/2.0\",\"x-forwarded-proto\":\"https\"},\"json\":{\"applicationId\":\"12347\",\"approvedAmount\":150000,\"decision\":\"approved\",\"riskScore\":133,\"timestamp\":1751437467.596806},\"url\":\"https://postman-echo.com/post\"}",
+              "headers": {
+                "Content-Length": "502",
+                "Content-Type": "application/json; charset=utf-8",
+                "Date": "Wed, 02 Jul 2025 06:24:27 GMT",
+                "Etag": "W/\"1f6-oPf7Nv/tn4vYaLxsqIpZg1fQiB8\"",
+                "Server": "istio-envoy",
+                "Set-Cookie": "sails.sid=s%3At-c0KzOII6hgyd5abVSngEAUjlBQzHTk.KUduMyZ8f5zOCHNnkp6ZQR0qZqyKWUPwoT9SevBdsSI; Path=/; HttpOnly",
+                "Vary": "Accept-Encoding",
+                "X-Envoy-Upstream-Service-Time": "4"
+              },
+              "statusCode": 200
+            },
+            "query": ".body | fromjson | .data"
+          },
+          "startTime": "2025-07-02T11:54:27.913139+05:30",
+          "endTime": "2025-07-02T11:54:27.913636+05:30",
+          "output": {
+            "applicationId": "12347",
+            "approvedAmount": 150000,
+            "decision": "approved",
+            "riskScore": 133,
+            "timestamp": 1751437467.596806
+          }
+        }
+      ]
+    }
+  ]
+}

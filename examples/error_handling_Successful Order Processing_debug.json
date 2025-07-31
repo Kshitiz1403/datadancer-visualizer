@@ -1,0 +1,173 @@
+{
+  "states": [
+    {
+      "name": "ValidateOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.131531+05:30",
+      "endTime": "2025-07-02T11:54:22.131903+05:30",
+      "input": {
+        "order": {
+          "amount": 100.5,
+          "id": "ORD123",
+          "items": [
+            "item1",
+            "item2"
+          ]
+        }
+      },
+      "output": {
+        "order": {
+          "amount": 100.5,
+          "id": "ORD123",
+          "items": [
+            "item1",
+            "item2"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "order": {
+                "amount": 100.5,
+                "id": "ORD123",
+                "items": [
+                  "item1",
+                  "item2"
+                ]
+              }
+            },
+            "query": "if .order.amount \u003c= 0 then error(\"Invalid order amount\") else {order: .order } end"
+          },
+          "startTime": "2025-07-02T11:54:22.131555+05:30",
+          "endTime": "2025-07-02T11:54:22.131861+05:30",
+          "output": {
+            "order": {
+              "amount": 100.5,
+              "id": "ORD123",
+              "items": [
+                "item1",
+                "item2"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ProcessOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.131971+05:30",
+      "endTime": "2025-07-02T11:54:22.133118+05:30",
+      "input": {
+        "order": {
+          "amount": 100.5,
+          "id": "ORD123",
+          "items": [
+            "item1",
+            "item2"
+          ]
+        }
+      },
+      "output": {
+        "body": "{\"status\":\"success\"}",
+        "headers": {
+          "Content-Length": "20",
+          "Content-Type": "text/plain; charset=utf-8",
+          "Date": "Wed, 02 Jul 2025 06:24:22 GMT"
+        },
+        "statusCode": 200
+      },
+      "actions": [
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "body": {
+              "amount": 100.5,
+              "id": "ORD123",
+              "items": [
+                "item1",
+                "item2"
+              ]
+            },
+            "failOnError": true,
+            "method": "POST",
+            "timeoutSec": 10,
+            "url": "http://127.0.0.1:54447"
+          },
+          "startTime": "2025-07-02T11:54:22.131992+05:30",
+          "endTime": "2025-07-02T11:54:22.133071+05:30",
+          "output": {
+            "body": "{\"status\":\"success\"}",
+            "headers": {
+              "Content-Length": "20",
+              "Content-Type": "text/plain; charset=utf-8",
+              "Date": "Wed, 02 Jul 2025 06:24:22 GMT"
+            },
+            "statusCode": 200
+          }
+        }
+      ]
+    },
+    {
+      "name": "CompleteOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.13319+05:30",
+      "endTime": "2025-07-02T11:54:22.133434+05:30",
+      "input": {
+        "body": "{\"status\":\"success\"}",
+        "headers": {
+          "Content-Length": "20",
+          "Content-Type": "text/plain; charset=utf-8",
+          "Date": "Wed, 02 Jul 2025 06:24:22 GMT"
+        },
+        "statusCode": 200
+      },
+      "output": {
+        "order": {
+          "body": "{\"status\":\"success\"}",
+          "headers": {
+            "Content-Length": "20",
+            "Content-Type": "text/plain; charset=utf-8",
+            "Date": "Wed, 02 Jul 2025 06:24:22 GMT"
+          },
+          "statusCode": 200
+        },
+        "status": "completed"
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "body": "{\"status\":\"success\"}",
+              "headers": {
+                "Content-Length": "20",
+                "Content-Type": "text/plain; charset=utf-8",
+                "Date": "Wed, 02 Jul 2025 06:24:22 GMT"
+              },
+              "statusCode": 200
+            },
+            "query": "{ status: \"completed\", order: . }"
+          },
+          "startTime": "2025-07-02T11:54:22.133215+05:30",
+          "endTime": "2025-07-02T11:54:22.133396+05:30",
+          "output": {
+            "order": {
+              "body": "{\"status\":\"success\"}",
+              "headers": {
+                "Content-Length": "20",
+                "Content-Type": "text/plain; charset=utf-8",
+                "Date": "Wed, 02 Jul 2025 06:24:22 GMT"
+              },
+              "statusCode": 200
+            },
+            "status": "completed"
+          }
+        }
+      ]
+    }
+  ]
+}

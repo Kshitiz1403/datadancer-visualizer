@@ -1,0 +1,184 @@
+{
+  "states": [
+    {
+      "name": "ValidateOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.155543+05:30",
+      "endTime": "2025-07-02T11:54:22.155879+05:30",
+      "input": {
+        "order": {
+          "amount": 200,
+          "id": "ORD126",
+          "items": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      },
+      "output": {
+        "order": {
+          "amount": 200,
+          "id": "ORD126",
+          "items": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "order": {
+                "amount": 200,
+                "id": "ORD126",
+                "items": [
+                  "item1",
+                  "item2",
+                  "item3"
+                ]
+              }
+            },
+            "query": "if .order.amount \u003c= 0 then error(\"Invalid order amount\") else {order: .order } end"
+          },
+          "startTime": "2025-07-02T11:54:22.155565+05:30",
+          "endTime": "2025-07-02T11:54:22.155838+05:30",
+          "output": {
+            "order": {
+              "amount": 200,
+              "id": "ORD126",
+              "items": [
+                "item1",
+                "item2",
+                "item3"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ProcessOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.155935+05:30",
+      "endTime": "2025-07-02T11:54:23.157744+05:30",
+      "input": {
+        "order": {
+          "amount": 200,
+          "id": "ORD126",
+          "items": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      },
+      "output": {
+        "order": {
+          "amount": 200,
+          "id": "ORD126",
+          "items": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "body": {
+              "amount": 200,
+              "id": "ORD126",
+              "items": [
+                "item1",
+                "item2",
+                "item3"
+              ]
+            },
+            "failOnError": true,
+            "method": "POST",
+            "timeoutSec": 1,
+            "url": "http://127.0.0.1:54452"
+          },
+          "startTime": "2025-07-02T11:54:22.155954+05:30",
+          "endTime": "2025-07-02T11:54:23.157677+05:30",
+          "output": null,
+          "error": "[HTTP_REQUEST_FAILED] HTTP request failed (Activity: HTTPRequest) - caused by: Post \"http://127.0.0.1:54452\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)"
+        }
+      ]
+    },
+    {
+      "name": "HandleTimeout",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:23.1578+05:30",
+      "endTime": "2025-07-02T11:54:23.158011+05:30",
+      "input": {
+        "order": {
+          "amount": 200,
+          "id": "ORD126",
+          "items": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      },
+      "output": {
+        "error": "Request timed out",
+        "order": {
+          "order": {
+            "amount": 200,
+            "id": "ORD126",
+            "items": [
+              "item1",
+              "item2",
+              "item3"
+            ]
+          }
+        },
+        "retry_after": 30
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "order": {
+                "amount": 200,
+                "id": "ORD126",
+                "items": [
+                  "item1",
+                  "item2",
+                  "item3"
+                ]
+              }
+            },
+            "query": "{ error: \"Request timed out\", order: ., retry_after: 30 }"
+          },
+          "startTime": "2025-07-02T11:54:23.157814+05:30",
+          "endTime": "2025-07-02T11:54:23.157982+05:30",
+          "output": {
+            "error": "Request timed out",
+            "order": {
+              "order": {
+                "amount": 200,
+                "id": "ORD126",
+                "items": [
+                  "item1",
+                  "item2",
+                  "item3"
+                ]
+              }
+            },
+            "retry_after": 30
+          }
+        }
+      ]
+    }
+  ]
+}

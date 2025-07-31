@@ -1,0 +1,162 @@
+{
+  "states": [
+    {
+      "name": "ValidateOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.14253+05:30",
+      "endTime": "2025-07-02T11:54:22.142852+05:30",
+      "input": {
+        "order": {
+          "amount": 75,
+          "id": "ORD125",
+          "items": [
+            "item1"
+          ]
+        }
+      },
+      "output": {
+        "order": {
+          "amount": 75,
+          "id": "ORD125",
+          "items": [
+            "item1"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "order": {
+                "amount": 75,
+                "id": "ORD125",
+                "items": [
+                  "item1"
+                ]
+              }
+            },
+            "query": "if .order.amount \u003c= 0 then error(\"Invalid order amount\") else {order: .order } end"
+          },
+          "startTime": "2025-07-02T11:54:22.142558+05:30",
+          "endTime": "2025-07-02T11:54:22.142779+05:30",
+          "output": {
+            "order": {
+              "amount": 75,
+              "id": "ORD125",
+              "items": [
+                "item1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ProcessOrder",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.142903+05:30",
+      "endTime": "2025-07-02T11:54:22.1436+05:30",
+      "input": {
+        "order": {
+          "amount": 75,
+          "id": "ORD125",
+          "items": [
+            "item1"
+          ]
+        }
+      },
+      "output": {
+        "order": {
+          "amount": 75,
+          "id": "ORD125",
+          "items": [
+            "item1"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "activityName": "HTTPRequest",
+          "arguments": {
+            "body": {
+              "amount": 75,
+              "id": "ORD125",
+              "items": [
+                "item1"
+              ]
+            },
+            "failOnError": true,
+            "method": "POST",
+            "timeoutSec": 10,
+            "url": "http://127.0.0.1:54450"
+          },
+          "startTime": "2025-07-02T11:54:22.142924+05:30",
+          "endTime": "2025-07-02T11:54:22.143518+05:30",
+          "output": null,
+          "error": "[HTTP_REQUEST_FAILED] HTTP request failed (Activity: HTTPRequest) - caused by: Post \"http://127.0.0.1:54450\": dial tcp 127.0.0.1:54450: connect: connection refused"
+        }
+      ]
+    },
+    {
+      "name": "HandleConnectionError",
+      "type": "operation",
+      "startTime": "2025-07-02T11:54:22.143656+05:30",
+      "endTime": "2025-07-02T11:54:22.143871+05:30",
+      "input": {
+        "order": {
+          "amount": 75,
+          "id": "ORD125",
+          "items": [
+            "item1"
+          ]
+        }
+      },
+      "output": {
+        "error": "Connection error occurred",
+        "order": {
+          "order": {
+            "amount": 75,
+            "id": "ORD125",
+            "items": [
+              "item1"
+            ]
+          }
+        },
+        "retry_after": 60
+      },
+      "actions": [
+        {
+          "activityName": "JQ",
+          "arguments": {
+            "data": {
+              "order": {
+                "amount": 75,
+                "id": "ORD125",
+                "items": [
+                  "item1"
+                ]
+              }
+            },
+            "query": "{ error: \"Connection error occurred\", order: ., retry_after: 60 }"
+          },
+          "startTime": "2025-07-02T11:54:22.143677+05:30",
+          "endTime": "2025-07-02T11:54:22.143832+05:30",
+          "output": {
+            "error": "Connection error occurred",
+            "order": {
+              "order": {
+                "amount": 75,
+                "id": "ORD125",
+                "items": [
+                  "item1"
+                ]
+              }
+            },
+            "retry_after": 60
+          }
+        }
+      ]
+    }
+  ]
+}

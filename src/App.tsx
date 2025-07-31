@@ -3,14 +3,14 @@ import '@xyflow/react/dist/style.css';
 import './App.css';
 import WorkflowVisualizer from './components/WorkflowVisualizer';
 import FileSelector from './components/FileSelector';
-import type { WorkflowDebugData } from './types';
+import type { WorkflowDebugData, CombinedWorkflowData } from './types';
 
 function App() {
-  const [workflowData, setWorkflowData] = useState<WorkflowDebugData | null>(null);
+  const [workflowData, setWorkflowData] = useState<WorkflowDebugData | CombinedWorkflowData | null>(null);
   const [currentFile, setCurrentFile] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleDataLoad = (data: WorkflowDebugData, filename: string) => {
+  const handleDataLoad = (data: WorkflowDebugData | CombinedWorkflowData, filename: string) => {
     setWorkflowData(data);
     setCurrentFile(filename);
     setSidebarOpen(false); // Close sidebar after selecting a file
