@@ -12,7 +12,9 @@ import {
   Zap,
   ZapOff,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  Shield,
+  ShieldAlert
 } from 'lucide-react';
 
 interface NodeDetailPanelProps {
@@ -34,6 +36,36 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
   const { label, state, duration, hasError, wasExecuted } = nodeData;
   const executionState = state.execution;
   const definitionState = state.definition;
+
+  // Helper function to check if an error matches an error reference
+  const matchesErrorRef = (errorMessage: string, errorRef: string): boolean => {
+    if (!errorMessage || !errorRef) return false;
+    return errorMessage.toLowerCase().includes(errorRef.toLowerCase());
+  };
+
+  // Helper function to find which error handler was triggered
+  const getTriggeredErrorHandler = () => {
+    if (!hasError || !definitionState.onErrors || !executionState) {
+      return null;
+    }
+    
+    const errorMessage = executionState.error || 
+      executionState.actions?.find(action => action.error)?.error;
+    
+    if (!errorMessage) return null;
+    
+    // First, try to find specific error handlers (non-DefaultErrorRef)
+    const specificHandler = definitionState.onErrors.find(errorHandler => 
+      errorHandler.errorRef !== 'DefaultErrorRef' && matchesErrorRef(errorMessage, errorHandler.errorRef)
+    );
+    
+    if (specificHandler) return specificHandler;
+    
+    // If no specific handler matched, try to find DefaultErrorRef as fallback
+    return definitionState.onErrors.find(errorHandler => errorHandler.errorRef === 'DefaultErrorRef');
+  };
+
+  const triggeredErrorHandler = getTriggeredErrorHandler();
 
   const openJsonModal = (title: string, data: any, subtitle?: string) => {
     setModalData({ isOpen: true, title, data, subtitle });
@@ -159,6 +191,52 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Error Handlers */}
+          {definitionState.onErrors && (
+            <div className="detail-section">
+              <h3>Error Handlers</h3>
+              {hasError && triggeredErrorHandler && (
+                <div className="error-handler-result">
+                  <div className="triggered-handler">
+                    <ShieldAlert size={16} className="error-icon" />
+                    <span>Triggered: <strong>{triggeredErrorHandler.errorRef}</strong></span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="error-handlers-list">
+                {definitionState.onErrors.map((errorHandler, index) => {
+                  const isTriggered = hasError && triggeredErrorHandler?.errorRef === errorHandler.errorRef;
+                  const nextState = typeof errorHandler.transition === 'string' 
+                    ? errorHandler.transition 
+                    : errorHandler.transition.nextState;
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={`error-handler-item ${isTriggered ? 'triggered' : 'not-triggered'}`}
+                    >
+                      <div className="error-handler-header">
+                        <div className="error-handler-name">
+                          {isTriggered ? (
+                            <ShieldAlert size={16} className="error-icon" />
+                          ) : (
+                            <Shield size={16} className="shield-icon" />
+                          )}
+                          <span>{errorHandler.errorRef}</span>
+                        </div>
+                        {isTriggered && (
+                          <span className="error-handler-badge">Triggered</span>
+                        )}
+                      </div>
+                      <div className="error-handler-target">→ {nextState}</div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 

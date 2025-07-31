@@ -1256,6 +1256,81 @@
   font-weight: 500;
 }
 
+/* Error Handlers Styles */
+.node-detail-panel .error-handler-result {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+}
+
+.node-detail-panel .triggered-handler {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+.node-detail-panel .error-handlers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.node-detail-panel .error-handler-item {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+}
+
+.node-detail-panel .error-handler-item.triggered {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.node-detail-panel .error-handler-item.not-triggered {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.node-detail-panel .error-handler-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.node-detail-panel .error-handler-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.node-detail-panel .error-handler-name .shield-icon {
+  color: #6b7280;
+}
+
+.node-detail-panel .error-handler-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.node-detail-panel .error-handler-target {
+  font-size: 0.875rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
 .node-detail-panel .actions-detail {
   display: flex;
   flex-direction: column;
