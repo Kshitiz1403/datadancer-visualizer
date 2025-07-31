@@ -18,9 +18,12 @@ import {
 
 interface WorkflowNodeProps {
   data: NodeData;
+  onNodeClick?: (nodeData: NodeData, nodeId: string) => void;
+  isSelected?: boolean;
+  id?: string;
 }
 
-const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data }) => {
+const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data, onNodeClick, isSelected, id }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [modalData, setModalData] = useState<{ isOpen: boolean; title: string; data: any; subtitle?: string }>({
     isOpen: false,
@@ -58,10 +61,19 @@ const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data }) => {
 
   const nodeClass = hasError ? 'error' : state.type;
   const typeClass = hasError ? 'error' : !wasExecuted ? 'unexecuted' : state.type;
+  const selectedClass = isSelected ? 'selected' : '';
 
   // Get data from execution if available, otherwise from definition
   const executionState = state.execution;
   const definitionState = state.definition;
+
+  const handleNodeClick = (e: React.MouseEvent) => {
+    // Don't trigger node click if clicking on expand button or action buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    onNodeClick?.(data, id || '');
+  };
 
   const renderExecutedContent = () => {
     if (!executionState) return null;
@@ -366,7 +378,7 @@ const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data }) => {
   };
 
   return (
-    <div className={`workflow-node ${nodeClass}`}>
+    <div className={`workflow-node ${nodeClass} ${selectedClass}`} onClick={handleNodeClick}>
       <Handle type="target" position={Position.Left} />
       
       <div className="node-header">
