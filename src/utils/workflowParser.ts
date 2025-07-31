@@ -5,8 +5,61 @@ import type {
   WorkflowDefinition, 
   CombinedWorkflowData, 
   CombinedWorkflowState,
-  WorkflowDefinitionState
+  WorkflowDefinitionState,
+  WorkflowOnError
 } from '../types';
+
+// Helper function to check if an error matches an error reference
+const matchesErrorRef = (errorMessage: string, errorRef: string): boolean => {
+  if (!errorMessage || !errorRef) return false;
+  
+  // Check if error message contains the error reference
+  return errorMessage.toLowerCase().includes(errorRef.toLowerCase());
+};
+
+// Helper function to find which error handler was triggered
+const findTriggeredErrorHandler = (
+  state: CombinedWorkflowState
+): { errorHandler: WorkflowOnError; nextState: string } | null => {
+  if (!state.hasError || !state.definition.onErrors || !state.execution) {
+    return null;
+  }
+  
+  // Get the error message from the execution
+  const errorMessage = state.execution.error || 
+    state.execution.actions?.find(action => action.error)?.error;
+  
+  if (!errorMessage) return null;
+  
+  // First, try to find specific error handlers (non-DefaultErrorRef)
+  for (const errorHandler of state.definition.onErrors) {
+    if (errorHandler.errorRef !== 'DefaultErrorRef' && matchesErrorRef(errorMessage, errorHandler.errorRef)) {
+      const nextState = typeof errorHandler.transition === 'string' 
+        ? errorHandler.transition 
+        : errorHandler.transition.nextState;
+      return { errorHandler, nextState };
+    }
+  }
+  
+  // If no specific handler matched, try to find DefaultErrorRef as fallback
+  const defaultHandler = state.definition.onErrors.find(handler => handler.errorRef === 'DefaultErrorRef');
+  if (defaultHandler) {
+    const nextState = typeof defaultHandler.transition === 'string' 
+      ? defaultHandler.transition 
+      : defaultHandler.transition.nextState;
+    return { errorHandler: defaultHandler, nextState };
+  }
+  
+  return null;
+};
+
+// Helper function to get the next state from error handler transition
+const getErrorHandlerNextState = (errorHandler: WorkflowOnError): string => {
+  if (typeof errorHandler.transition === 'string') {
+    return errorHandler.transition;
+  }
+  return errorHandler.transition.nextState;
+};
 
 // Original parser for backward compatibility
 export const parseWorkflowData = (data: WorkflowDebugData): { nodes: Node[], edges: Edge[] } => {
@@ -121,12 +174,23 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
       // Handle default condition
       if (state.definition.defaultCondition) {
         layoutStates(state.definition.defaultCondition.transition.nextState, visited, level + 1, position + nextPosition);
+        nextPosition++;
       }
     } else {
       // Handle regular transition
       const nextState = getNextStateName(state.definition);
       if (nextState) {
-        layoutStates(nextState, visited, level + 1, position);
+        layoutStates(nextState, visited, level + 1, position + nextPosition);
+        nextPosition++;
+      }
+      
+      // Handle error handlers - position them below the normal flow
+      if (state.definition.onErrors) {
+        state.definition.onErrors.forEach((errorHandler, index) => {
+          const errorNextState = getErrorHandlerNextState(errorHandler);
+          // Position error handlers at a lower vertical position to show the error flow
+          layoutStates(errorNextState, visited, level + 1, position + nextPosition + index);
+        });
       }
     }
   };
@@ -223,16 +287,20 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
         edges.push(edge);
       }
     } else {
-      // Create edge for regular transition
+      // Check if this state has error handlers and an error occurred
+      const triggeredErrorHandler = findTriggeredErrorHandler(state);
+      
+      // Always create the normal transition edge first (if it exists)
       const nextStateName = getNextStateName(state.definition);
       if (nextStateName) {
         const targetId = `state-${nextStateName}`;
-        const isExecutedPath = state.wasExecuted;
+        const isExecutedPath = state.wasExecuted && !state.hasError;
         
         let strokeColor = '#10b981'; // Default green for operations
         if (state.hasError) {
-          strokeColor = '#ef4444';
-        } else if (!isExecutedPath) {
+          // Show as unexecuted since error prevented normal flow
+          strokeColor = '#d1d5db'; // Gray for unexecuted paths
+        } else if (!state.wasExecuted) {
           strokeColor = '#d1d5db'; // Gray for unexecuted paths
         }
 
@@ -241,14 +309,93 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
           source: sourceId,
           target: targetId,
           type: 'default',
-          animated: isExecutedPath && !state.hasError,
+          animated: isExecutedPath,
           style: {
             stroke: strokeColor,
             strokeWidth: isExecutedPath ? 2 : 1,
-            strokeDasharray: (!isExecutedPath || state.hasError) ? '5,5' : undefined
+            strokeDasharray: !isExecutedPath ? '5,5' : undefined
           }
         };
         edges.push(edge);
+      }
+
+      if (triggeredErrorHandler) {
+        // Create edge to the error handler that was triggered
+        const errorTargetId = `state-${triggeredErrorHandler.nextState}`;
+        const edge: Edge = {
+          id: `edge-${state.name}-error-${triggeredErrorHandler.errorHandler.errorRef}`,
+          source: sourceId,
+          target: errorTargetId,
+          type: 'default',
+          label: `error: ${triggeredErrorHandler.errorHandler.errorRef}`,
+          animated: true,
+          style: {
+            stroke: '#ef4444', // Red for error paths
+            strokeWidth: 2,
+            strokeDasharray: '3,3' // Different dash pattern for errors
+          },
+          labelStyle: {
+            fontSize: 10,
+            fontWeight: 600,
+            fill: '#ef4444',
+            backgroundColor: '#fef2f2',
+            padding: '2px 4px',
+            borderRadius: '3px'
+          }
+        };
+        edges.push(edge);
+        
+        // Create unexecuted edges for other error handlers
+        if (state.definition.onErrors) {
+          state.definition.onErrors.forEach(errorHandler => {
+            if (errorHandler.errorRef !== triggeredErrorHandler.errorHandler.errorRef) {
+              const unexecutedTargetId = `state-${getErrorHandlerNextState(errorHandler)}`;
+              const unexecutedEdge: Edge = {
+                id: `edge-${state.name}-error-unexecuted-${errorHandler.errorRef}`,
+                source: sourceId,
+                target: unexecutedTargetId,
+                type: 'default',
+                label: `error: ${errorHandler.errorRef}`,
+                animated: false,
+                style: {
+                  stroke: '#d1d5db', // Gray for unexecuted
+                  strokeWidth: 1,
+                  strokeDasharray: '5,5'
+                },
+                labelStyle: {
+                  fontSize: 10,
+                  fontWeight: 400,
+                  fill: '#6b7280'
+                }
+              };
+              edges.push(unexecutedEdge);
+            }
+          });
+        }
+      } else if (state.definition.onErrors) {
+        // Create unexecuted error handler edges if error handlers exist but no error occurred
+        state.definition.onErrors.forEach(errorHandler => {
+          const errorTargetId = `state-${getErrorHandlerNextState(errorHandler)}`;
+          const errorEdge: Edge = {
+            id: `edge-${state.name}-error-unexecuted-${errorHandler.errorRef}`,
+            source: sourceId,
+            target: errorTargetId,
+            type: 'default',
+            label: `error: ${errorHandler.errorRef}`,
+            animated: false,
+            style: {
+              stroke: '#d1d5db', // Gray for unexecuted
+              strokeWidth: 1,
+              strokeDasharray: '5,5'
+            },
+            labelStyle: {
+              fontSize: 10,
+              fontWeight: 400,
+              fill: '#6b7280'
+            }
+          };
+          edges.push(errorEdge);
+        });
       }
     }
   });

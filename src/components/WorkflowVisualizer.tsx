@@ -9,6 +9,7 @@ import {
 } from '@xyflow/react';
 import type { NodeTypes } from '@xyflow/react';
 import WorkflowNode from './WorkflowNode';
+import NodeDetailPanel from './NodeDetailPanel';
 import type { WorkflowDebugData, CombinedWorkflowData, NodeData } from '../types';
 import { parseWorkflowData, parseCombinedWorkflowData } from '../utils/workflowParser';
 
@@ -26,6 +27,42 @@ const isCombinedWorkflowData = (data: WorkflowDebugData | CombinedWorkflowData):
 };
 
 const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
+  const [detailPanel, setDetailPanel] = React.useState<{
+    isOpen: boolean;
+    nodeData: NodeData | null;
+    selectedNodeId: string | null;
+  }>({
+    isOpen: false,
+    nodeData: null,
+    selectedNodeId: null
+  });
+
+  const handleNodeClick = React.useCallback((nodeData: NodeData, nodeId: string) => {
+    setDetailPanel({
+      isOpen: true,
+      nodeData,
+      selectedNodeId: nodeId
+    });
+  }, []);
+
+  const handleDetailPanelClose = React.useCallback(() => {
+    setDetailPanel({
+      isOpen: false,
+      nodeData: null,
+      selectedNodeId: null
+    });
+  }, []);
+
+  // Create a wrapped node component that has access to the click handler
+  const WrappedWorkflowNode = React.useCallback((props: any) => {
+    const isSelected = detailPanel.selectedNodeId === props.id;
+    return <WorkflowNode {...props} onNodeClick={handleNodeClick} isSelected={isSelected} />;
+  }, [handleNodeClick, detailPanel.selectedNodeId]);
+
+  const nodeTypesWithHandler: NodeTypes = React.useMemo(() => ({
+    workflowNode: WrappedWorkflowNode,
+  }), [WrappedWorkflowNode]);
+
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
     if (isCombinedWorkflowData(data)) {
       return parseCombinedWorkflowData(data);
@@ -62,7 +99,7 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
+        nodeTypes={nodeTypesWithHandler}
         fitView
         fitViewOptions={{
           padding: 100,
@@ -84,7 +121,7 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
       >
         <Controls position="bottom-left" />
         <MiniMap 
-          position="top-right"
+          position="bottom-right"
           nodeColor={(node) => {
             const nodeData = node.data as NodeData | undefined;
             const hasError = nodeData?.hasError;
@@ -108,6 +145,12 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
           color="#d1d5db"
         />
       </ReactFlow>
+
+      <NodeDetailPanel
+        isOpen={detailPanel.isOpen}
+        nodeData={detailPanel.nodeData}
+        onClose={handleDetailPanelClose}
+      />
     </div>
   );
 };

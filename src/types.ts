@@ -39,6 +39,14 @@ export interface WorkflowCondition {
   };
 }
 
+// Add onError interface for error handling
+export interface WorkflowOnError {
+  errorRef: string;
+  transition: {
+    nextState: string;
+  } | string;
+}
+
 export interface WorkflowDefinitionState {
   name: string;
   type: 'operation' | 'switch' | string;
@@ -52,6 +60,7 @@ export interface WorkflowDefinitionState {
       nextState: string;
     };
   };
+  onErrors?: WorkflowOnError[];
   end?: boolean;
 }
 
