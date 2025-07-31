@@ -183,7 +183,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
             animated: isExecutedPath,
             style: {
               stroke: isExecutedPath ? '#f59e0b' : '#d1d5db',
-              strokeWidth: isExecutedPath ? 3 : 1,
+              strokeWidth: isExecutedPath ? 2 : 1,
               strokeDasharray: !isExecutedPath ? '5,5' : undefined
             },
             labelStyle: {
@@ -200,7 +200,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
       if (state.definition.defaultCondition) {
         const targetId = `state-${state.definition.defaultCondition.transition.nextState}`;
         const isExecutedPath = state.wasExecuted && 
-          !state.execution?.matchedCondition; // Default was taken if no condition matched
+          state.execution?.matchedCondition === 'default'; // Check if default condition was matched
         
         const edge: Edge = {
           id: `edge-${state.name}-default`,
@@ -211,7 +211,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
           animated: isExecutedPath,
           style: {
             stroke: isExecutedPath ? '#f59e0b' : '#d1d5db',
-            strokeWidth: isExecutedPath ? 3 : 1,
+            strokeWidth: isExecutedPath ? 2 : 1,
             strokeDasharray: !isExecutedPath ? '5,5' : undefined
           },
           labelStyle: {
