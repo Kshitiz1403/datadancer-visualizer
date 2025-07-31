@@ -1,0 +1,100 @@
+import React, { useMemo } from 'react';
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  useNodesState,
+  useEdgesState
+} from '@xyflow/react';
+import type { NodeTypes } from '@xyflow/react';
+import WorkflowNode from './WorkflowNode';
+import type { WorkflowDebugData, NodeData } from '../types';
+import { parseWorkflowData } from '../utils/workflowParser';
+
+interface WorkflowVisualizerProps {
+  data: WorkflowDebugData;
+}
+
+const nodeTypes: NodeTypes = {
+  workflowNode: WorkflowNode,
+};
+
+const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ data }) => {
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(
+    () => parseWorkflowData(data),
+    [data]
+  );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [reactFlowInstance, setReactFlowInstance] = React.useState<any>(null);
+
+  // Update nodes and edges when data changes
+  React.useEffect(() => {
+    const { nodes: newNodes, edges: newEdges } = parseWorkflowData(data);
+    setNodes(newNodes);
+    setEdges(newEdges);
+    
+    // Fit view after a small delay to ensure nodes are rendered
+    if (reactFlowInstance) {
+      setTimeout(() => {
+        reactFlowInstance.fitView();
+      }, 100);
+    }
+  }, [data, setNodes, setEdges, reactFlowInstance]);
+
+  return (
+    <div style={{ width: '100%', height: '100%', minHeight: '400px' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        fitView
+        fitViewOptions={{
+          padding: 100,
+          minZoom: 0.3,
+          maxZoom: 2
+        }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+        attributionPosition="bottom-left"
+        proOptions={{ hideAttribution: true }}
+        onInit={(instance) => {
+          setReactFlowInstance(instance);
+          setTimeout(() => instance.fitView(), 100);
+        }}
+        panOnScroll={true}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        panOnScrollSpeed={0.85}
+        key={`workflow-${nodes.length}-${edges.length}`}
+      >
+        <Controls position="bottom-left" />
+        <MiniMap 
+          position="top-right"
+          nodeColor={(node) => {
+            const nodeData = node.data as NodeData | undefined;
+            const hasError = nodeData?.hasError;
+            const type = nodeData?.state?.type;
+            if (hasError) return '#ef4444';
+            switch (type) {
+              case 'operation': return '#10b981';
+              case 'switch': return '#f59e0b';
+              default: return '#6366f1';
+            }
+          }}
+        />
+        <Background 
+          variant={"dots" as any} 
+          gap={16} 
+          size={1} 
+          color="#d1d5db"
+        />
+      </ReactFlow>
+    </div>
+  );
+};
+
+export default WorkflowVisualizer; 
