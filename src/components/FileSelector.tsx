@@ -83,7 +83,9 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
   const [mode, setMode] = useState<'combined' | 'debug-only'>('combined');
 
   const loadFile = async (filename: string): Promise<any> => {
-    const response = await fetch(`/examples/${filename}`);
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const url = `${baseUrl}examples/${filename}`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to load ${filename}`);
     }
