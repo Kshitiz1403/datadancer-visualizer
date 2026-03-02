@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { WorkflowDebugData, WorkflowDefinition, CombinedWorkflowData } from '../types';
-import { FileText, Upload, GitBranch, Activity } from 'lucide-react';
+import { FileText, Upload, GitBranch, Activity, ChevronDown } from 'lucide-react';
 import { combineWorkflowData } from '../utils/workflowParser';
 
 interface FileSelectorProps {
@@ -81,6 +81,11 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [mode, setMode] = useState<'combined' | 'debug-only'>('combined');
+  const [pasteExpanded, setPasteExpanded] = useState(false);
+  const [pasteDefJson, setPasteDefJson] = useState('');
+  const [pasteDebugJson, setPasteDebugJson] = useState('');
+  const [pasteDefError, setPasteDefError] = useState<string | null>(null);
+  const [pasteDebugError, setPasteDebugError] = useState<string | null>(null);
 
   const loadFile = async (filename: string): Promise<any> => {
     const baseUrl = import.meta.env.BASE_URL || '/';
@@ -177,6 +182,69 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
     reader.readAsText(file);
   };
 
+  const validateDefinitionJson = (raw: string) => {
+    if (!raw.trim()) { setPasteDefError(null); return; }
+    try {
+      const parsed = JSON.parse(raw);
+      if (!parsed.states || !parsed.version || !parsed.specVersion) {
+        setPasteDefError('Missing required fields: states, version, or specVersion');
+      } else {
+        setPasteDefError(null);
+      }
+    } catch {
+      setPasteDefError('Invalid JSON syntax');
+    }
+  };
+
+  const validateDebugJson = (raw: string) => {
+    if (!raw.trim()) { setPasteDebugError(null); return; }
+    try {
+      const parsed = JSON.parse(raw);
+      if (!parsed.states || !Array.isArray(parsed.states)) {
+        setPasteDebugError('Expected { states: [...] } format');
+      } else if (parsed.states.length > 0 && !parsed.states[0].startTime) {
+        setPasteDebugError('States appear to be definitions, not debug execution data');
+      } else {
+        setPasteDebugError(null);
+      }
+    } catch {
+      setPasteDebugError('Invalid JSON syntax');
+    }
+  };
+
+  const handlePasteVisualize = () => {
+    const hasDefinition = pasteDefJson.trim().length > 0;
+    const hasDebug = pasteDebugJson.trim().length > 0;
+    if (!hasDefinition && !hasDebug) {
+      setError('Paste at least one JSON block to visualize');
+      return;
+    }
+    setError('');
+    try {
+      let result: WorkflowDebugData | CombinedWorkflowData;
+      let label: string;
+      if (hasDefinition && hasDebug) {
+        const def: WorkflowDefinition = JSON.parse(pasteDefJson);
+        const debug: WorkflowDebugData = JSON.parse(pasteDebugJson);
+        result = combineWorkflowData(def, debug);
+        label = `Pasted: ${def.name || def.id} + execution`;
+      } else if (hasDefinition) {
+        const def: WorkflowDefinition = JSON.parse(pasteDefJson);
+        result = combineWorkflowData(def);
+        label = `Pasted: ${def.name || def.id}`;
+      } else {
+        const debug: WorkflowDebugData = JSON.parse(pasteDebugJson);
+        result = debug;
+        label = 'Pasted: execution trace';
+      }
+      onDataLoad(result, label);
+      setSelectedWorkflow('');
+      setSelectedExecution('');
+    } catch (err) {
+      setError(`Could not parse JSON: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
   // Load first example by default
   useEffect(() => {
     if (SUGGESTED_COMBINATIONS.length > 0) {
@@ -184,6 +252,11 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
       loadCombinedWorkflow(first.workflow, first.executions[0]);
     }
   }, []);
+
+  const canVisualize =
+    (pasteDefJson.trim().length > 0 || pasteDebugJson.trim().length > 0) &&
+    pasteDefError === null &&
+    pasteDebugError === null;
 
   return (
     <div className="file-selector">
@@ -193,6 +266,67 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
       </div>
 
       <div className="file-controls">
+        {/* Paste JSON Section */}
+        <div className="paste-section">
+          <button
+            className="paste-section-toggle"
+            onClick={() => setPasteExpanded(!pasteExpanded)}
+          >
+            <span>Paste Your Own JSON</span>
+            <ChevronDown
+              size={16}
+              style={{
+                transform: pasteExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease'
+              }}
+            />
+          </button>
+          {pasteExpanded && (
+            <div className="paste-section-body">
+              <div className="paste-field">
+                <label className="paste-label">
+                  <GitBranch size={14} />
+                  Workflow Definition JSON
+                  <span className="paste-optional">(optional)</span>
+                </label>
+                <textarea
+                  className={`paste-textarea${pasteDefError ? ' paste-textarea--error' : ''}`}
+                  value={pasteDefJson}
+                  onChange={(e) => { setPasteDefJson(e.target.value); validateDefinitionJson(e.target.value); }}
+                  placeholder={'{\n  "id": "my-workflow",\n  "version": "1.0",\n  "specVersion": "0.8",\n  "name": "My Workflow",\n  "start": "FirstState",\n  "states": [...]\n}'}
+                  rows={6}
+                  spellCheck={false}
+                />
+                {pasteDefError && <span className="paste-error-text">{pasteDefError}</span>}
+              </div>
+              <div className="paste-field">
+                <label className="paste-label">
+                  <Activity size={14} />
+                  Debug Execution JSON
+                  <span className="paste-optional">(optional)</span>
+                </label>
+                <textarea
+                  className={`paste-textarea${pasteDebugError ? ' paste-textarea--error' : ''}`}
+                  value={pasteDebugJson}
+                  onChange={(e) => { setPasteDebugJson(e.target.value); validateDebugJson(e.target.value); }}
+                  placeholder={'{\n  "states": [\n    {\n      "name": "FirstState",\n      "startTime": "...",\n      "endTime": "..."\n    }\n  ]\n}'}
+                  rows={6}
+                  spellCheck={false}
+                />
+                {pasteDebugError && <span className="paste-error-text">{pasteDebugError}</span>}
+              </div>
+              <button
+                className="paste-visualize-btn"
+                onClick={handlePasteVisualize}
+                disabled={!canVisualize}
+              >
+                <FileText size={16} />
+                <span>Visualize</span>
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Mode Toggle */}
         <div className="mode-toggle">
           <h3>Visualization Mode</h3>
@@ -301,6 +435,7 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
             />
           </label>
         </div>
+
       </div>
 
       {isLoading && <div className="loading">Loading workflow...</div>}
