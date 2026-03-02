@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { WorkflowDebugData, WorkflowDefinition, CombinedWorkflowData } from '../types';
-import { FileText, Upload, GitBranch, Activity, ChevronDown } from 'lucide-react';
+import { FileText, GitBranch, Activity, ChevronDown } from 'lucide-react';
 import { combineWorkflowData } from '../utils/workflowParser';
 
 interface FileSelectorProps {
@@ -149,37 +149,6 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string);
-        
-        // Try to detect if it's a workflow definition or debug data
-        if (data.states && data.version && data.specVersion) {
-          // Looks like a workflow definition
-          const combinedData = combineWorkflowData(data);
-          onDataLoad(combinedData, file.name);
-        } else if (data.states && data.states[0]?.startTime) {
-          // Looks like debug data
-          onDataLoad(data, file.name);
-        } else {
-          throw new Error('Unrecognized file format');
-        }
-        
-        setSelectedWorkflow(file.name);
-        setSelectedExecution('');
-        setError('');
-      } catch (err) {
-        setError('Invalid JSON file or unrecognized format');
-      }
-    };
-    reader.readAsText(file);
   };
 
   const validateDefinitionJson = (raw: string) => {
@@ -420,21 +389,6 @@ const FileSelector: React.FC<FileSelectorProps> = ({ onDataLoad }) => {
             </div>
           </div>
         )}
-
-        {/* File Upload */}
-        <div className="upload-section">
-          <h3>Upload Custom File</h3>
-          <label className="upload-button">
-            <Upload size={16} />
-            <span>Choose JSON file</span>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-            />
-          </label>
-        </div>
 
       </div>
 
