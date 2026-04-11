@@ -13,7 +13,6 @@ interface JsonModalProps {
 const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, subtitle }) => {
   const [copied, setCopied] = React.useState(false);
 
-  // Handle Escape key
   React.useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -23,7 +22,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
@@ -52,7 +51,6 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
     }
   };
 
-  // Use React portal to render modal at document body level
   return createPortal(
     <div className="json-modal-backdrop" onClick={handleBackdropClick}>
       <div className="json-modal">
@@ -62,7 +60,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
             {subtitle && <p className="json-modal-subtitle">{subtitle}</p>}
           </div>
           <div className="json-modal-actions">
-            <button 
+            <button
               className="json-modal-copy-btn"
               onClick={handleCopy}
               title="Copy JSON"
@@ -70,7 +68,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
               {copied ? <Check size={18} /> : <Copy size={18} />}
               {copied ? 'Copied!' : 'Copy'}
             </button>
-            <button 
+            <button
               className="json-modal-close-btn"
               onClick={onClose}
               title="Close"
@@ -79,7 +77,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
             </button>
           </div>
         </div>
-        
+
         <div className="json-modal-content">
           <pre className="json-display">{jsonString}</pre>
         </div>
@@ -89,4 +87,4 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
   );
 };
 
-export default JsonModal; 
+export default JsonModal;

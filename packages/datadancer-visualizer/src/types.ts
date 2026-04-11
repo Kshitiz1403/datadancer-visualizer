@@ -23,7 +23,6 @@ export interface WorkflowDebugData {
   states: WorkflowState[];
 }
 
-// New types for workflow definitions
 export interface WorkflowDefinitionAction {
   functionRef: {
     refName: string;
@@ -39,7 +38,6 @@ export interface WorkflowCondition {
   };
 }
 
-// Add onError interface for error handling
 export interface WorkflowOnError {
   errorRef: string;
   transition: {
@@ -74,18 +72,11 @@ export interface WorkflowDefinition {
   states: WorkflowDefinitionState[];
 }
 
-// Combined data type that merges definition with execution
 export interface CombinedWorkflowState {
   name: string;
   type: 'operation' | 'switch' | string;
-  
-  // From definition (always present)
   definition: WorkflowDefinitionState;
-  
-  // From execution (only present if this state was executed)
   execution?: WorkflowState;
-  
-  // Derived properties
   wasExecuted: boolean;
   hasError: boolean;
   duration?: number;
@@ -105,4 +96,22 @@ export interface NodeData {
   hasError: boolean;
   wasExecuted: boolean;
   [key: string]: unknown;
-} 
+}
+
+/** Theme for customizing visualizer colors. All fields are optional — defaults are used for any omitted field. */
+export interface WorkflowTheme {
+  colors: {
+    /** Color for successfully executed states */
+    executed: string;
+    /** Color for states that were not executed */
+    unexecuted: string;
+    /** Color for states that encountered an error */
+    error: string;
+    /** Color for operation-type states */
+    operation: string;
+    /** Color for switch/condition-type states */
+    switch: string;
+    /** Color for all other state types */
+    default: string;
+  };
+}
