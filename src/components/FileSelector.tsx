@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import type { WorkflowDebugData, WorkflowDefinition, CombinedWorkflowData } from '../types';
+import type { WorkflowDebugData, WorkflowDefinition, CombinedWorkflowData } from 'datadancer-visualizer';
 import { FileText, GitBranch, Activity, ChevronDown } from 'lucide-react';
-import { combineWorkflowData } from '../utils/workflowParser';
+import { combineWorkflowData } from 'datadancer-visualizer';
 
 interface FileSelectorProps {
   onDataLoad: (data: WorkflowDebugData | CombinedWorkflowData, filename: string) => void;

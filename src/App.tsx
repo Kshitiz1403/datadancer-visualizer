@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import '@xyflow/react/dist/style.css';
 import './App.css';
-import WorkflowVisualizer from './components/WorkflowVisualizer';
+import { WorkflowVisualizer } from 'datadancer-visualizer';
+import 'datadancer-visualizer/styles';
 import FileSelector from './components/FileSelector';
-import type { WorkflowDebugData, CombinedWorkflowData } from './types';
+import type { WorkflowDebugData, CombinedWorkflowData } from 'datadancer-visualizer';
 
 function App() {
   const [workflowData, setWorkflowData] = useState<WorkflowDebugData | CombinedWorkflowData | null>(null);
