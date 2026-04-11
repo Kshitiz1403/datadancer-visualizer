@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/datadancer-visualizer"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -10,7 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "datadancer-visualizer": "file:../datadancer-visualizer-lib",
+    "datadancer-visualizer": "*",
     "@xyflow/react": "^12.8.2",
     "lucide-react": "^0.534.0",
     "react": "^19.1.0",
