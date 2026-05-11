@@ -13,7 +13,6 @@ export { default as JsonModal } from './components/JsonModal';
 
 // Level 3: Data utilities (framework-agnostic)
 export {
-  parseWorkflowData,
   parseCombinedWorkflowData,
   combineWorkflowData,
   formatDuration,

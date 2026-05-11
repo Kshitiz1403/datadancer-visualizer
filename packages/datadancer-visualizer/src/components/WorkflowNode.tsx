@@ -14,6 +14,24 @@ import {
   ZapOff
 } from 'lucide-react';
 
+// Approximate vertical layout constants used to position per-condition handles (px).
+const NODE_HEADER_H  = 45;
+const NODE_CONTENT_PT = 14;
+const META_BLOCK_H   = 46;
+const COND_ROW_H     = 26;
+const COND_ROW_GAP   = 4;
+
+const condHandleTop = (index: number): number =>
+  NODE_HEADER_H + NODE_CONTENT_PT + META_BLOCK_H
+  + index * (COND_ROW_H + COND_ROW_GAP)
+  + COND_ROW_H / 2;
+
+const summarizeObject = (value: any): string => {
+  if (value == null) return 'null';
+  const json = JSON.stringify(value) ?? 'null';
+  return json.length > 50 ? json.substring(0, 50) + '...' : json;
+};
+
 interface WorkflowNodeProps {
   data: NodeData;
   onNodeClick?: (nodeData: NodeData, nodeId: string) => void;
@@ -40,10 +58,6 @@ const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data, onNodeClick, isSelect
       case 'switch': return <GitBranch {...iconProps} />;
       default: return <Database {...iconProps} />;
     }
-  };
-
-  const openJsonModal = (title: string, data: any, subtitle?: string) => {
-    setModalData({ isOpen: true, title, data, subtitle });
   };
 
   const closeJsonModal = () => {
@@ -113,17 +127,13 @@ const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data, onNodeClick, isSelect
               <div className="data-preview-item">
                 <span className="data-label">Input</span>
                 <span className="data-preview-text">
-                  {typeof executionState.input === 'object'
-                    ? `${Object.keys(executionState.input || {}).length} fields`
-                    : String(executionState.input).substring(0, 20) + '...'}
+                  {summarizeObject(executionState.input)}
                 </span>
               </div>
               <div className="data-preview-item">
                 <span className="data-label">Output</span>
                 <span className="data-preview-text">
-                  {typeof executionState.output === 'object'
-                    ? `${Object.keys(executionState.output || {}).length} fields`
-                    : String(executionState.output).substring(0, 20) + '...'}
+                  {summarizeObject(executionState.output)}
                 </span>
               </div>
             </div>
@@ -155,7 +165,7 @@ const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data, onNodeClick, isSelect
               {definitionState.dataConditions.map((condition, index) => (
                 <div key={index} className="condition-item unexecuted">
                   <GitBranch size={12} />
-                  <span>{condition.name}: {condition.condition}</span>
+                  <span>{condition.name ? `${condition.name}: ${condition.condition}` : condition.condition}</span>
                 </div>
               ))}
               {definitionState.defaultCondition && (
@@ -189,33 +199,74 @@ const WorkflowNode: React.FC<WorkflowNodeProps> = ({ data, onNodeClick, isSelect
     </>
   );
 
+  const renderSwitchHandles = () => {
+    const conditions = definitionState.dataConditions ?? [];
+    const matched = executionState?.matchedCondition;
+
+    return (
+      <>
+        {conditions.map((condition, index) => {
+          const isExecutedPath = wasExecuted && !!(matched &&
+            (matched === condition.name || matched === condition.condition));
+          return (
+            <Handle
+              key={`condition-${index}`}
+              type="source"
+              position={Position.Right}
+              id={`condition-${index}`}
+              style={{ top: condHandleTop(index) }}
+              className={`condition-handle ${isExecutedPath ? 'executed-handle' : 'unexecuted-handle'}`}
+            />
+          );
+        })}
+        {definitionState.defaultCondition && (() => {
+          const isDefaultExecuted = wasExecuted && matched === 'default';
+          return (
+            <Handle
+              key="condition-default"
+              type="source"
+              position={Position.Right}
+              id="condition-default"
+              style={{ top: condHandleTop(conditions.length) }}
+              className={`condition-handle ${isDefaultExecuted ? 'default-executed-handle' : 'default-handle'}`}
+            />
+          );
+        })()}
+      </>
+    );
+  };
+
   return (
-    <div className={`workflow-node ${nodeClass} ${selectedClass}`} onClick={handleNodeClick}>
-      <Handle type="target" position={Position.Left} />
+    <>
+      <div className={`workflow-node ${nodeClass} ${selectedClass}`} onClick={handleNodeClick}>
+        <Handle type="target" position={Position.Left} />
 
-      <div className="node-header">
-        <div className="node-title">
-          {wasExecuted ? <Zap size={16} className="success-icon" /> : <ZapOff size={16} className="unexecuted-icon" />}
-          {getTypeIcon()}
-          <span>{label}</span>
-          {hasError && <AlertCircle size={16} className="error-icon" />}
+        <div className="node-header">
+          <div className="node-title">
+            {wasExecuted ? <Zap size={16} className="success-icon" /> : <ZapOff size={16} className="unexecuted-icon" />}
+            {getTypeIcon()}
+            <span>{label}</span>
+            {hasError && <AlertCircle size={16} className="error-icon" />}
+          </div>
         </div>
+
+        <div className="node-content">
+          {wasExecuted ? renderExecutedContent() : renderUnexecutedContent()}
+        </div>
+
+        {state.type !== 'switch' && <Handle type="source" position={Position.Right} />}
+
+        <JsonModal
+          isOpen={modalData.isOpen}
+          onClose={closeJsonModal}
+          title={modalData.title}
+          data={modalData.data}
+          subtitle={modalData.subtitle}
+        />
       </div>
 
-      <div className="node-content">
-        {wasExecuted ? renderExecutedContent() : renderUnexecutedContent()}
-      </div>
-
-      <Handle type="source" position={Position.Right} />
-
-      <JsonModal
-        isOpen={modalData.isOpen}
-        onClose={closeJsonModal}
-        title={modalData.title}
-        data={modalData.data}
-        subtitle={modalData.subtitle}
-      />
-    </div>
+      {state.type === 'switch' && renderSwitchHandles()}
+    </>
   );
 };
 

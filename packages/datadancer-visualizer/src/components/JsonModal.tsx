@@ -8,9 +8,10 @@ interface JsonModalProps {
   title: string;
   data: any;
   subtitle?: string;
+  darkMode?: boolean;
 }
 
-const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, subtitle }) => {
+const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, subtitle, darkMode = false }) => {
   const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -52,7 +53,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ isOpen, onClose, title, data, sub
   };
 
   return createPortal(
-    <div className="json-modal-backdrop" onClick={handleBackdropClick}>
+    <div className={`wf-root${darkMode ? ' wf-dark' : ''} json-modal-backdrop`} onClick={handleBackdropClick}>
       <div className="json-modal">
         <div className="json-modal-header">
           <div>

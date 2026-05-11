@@ -9,8 +9,8 @@ import {
 } from '@xyflow/react';
 import type { NodeTypes } from '@xyflow/react';
 import WorkflowNode from './WorkflowNode';
-import type { WorkflowDebugData, CombinedWorkflowData, NodeData, WorkflowTheme } from '../types';
-import { parseWorkflowData, parseCombinedWorkflowData, getNodeTypeColor } from '../utils/workflowParser';
+import type { WorkflowDebugData, WorkflowDefinition, NodeData, WorkflowTheme } from '../types';
+import { parseCombinedWorkflowData, combineWorkflowData, getNodeTypeColor } from '../utils/workflowParser';
 
 const DEFAULT_THEME: WorkflowTheme = {
   colors: {
@@ -23,22 +23,33 @@ const DEFAULT_THEME: WorkflowTheme = {
   }
 };
 
+const DEFAULT_DARK_THEME: WorkflowTheme = {
+  colors: {
+    executed: '#34d399',
+    unexecuted: '#9ca3af',
+    error: '#f87171',
+    operation: '#34d399',
+    switch: '#fbbf24',
+    default: '#818cf8',
+  }
+};
+
 /** Internal React context for passing the resolved theme to WorkflowNode. */
 export const WorkflowThemeContext = React.createContext<WorkflowTheme>(DEFAULT_THEME);
 
-const isCombinedWorkflowData = (data: WorkflowDebugData | CombinedWorkflowData): data is CombinedWorkflowData => {
-  return 'definition' in data && 'startState' in data;
-};
-
 export interface WorkflowGraphProps {
-  /** Workflow data to render — either combined definition+execution or execution-only. */
-  data: WorkflowDebugData | CombinedWorkflowData;
+  /** Workflow definition (structure). */
+  workflow: WorkflowDefinition;
+  /** Execution trace from a workflow run. Omit to render definition-only. */
+  execution?: WorkflowDebugData;
   /** Called when a node is clicked. */
   onNodeClick?: (nodeData: NodeData, nodeId: string) => void;
   /** ID of the currently selected node (controls selection highlight). */
   selectedNodeId?: string | null;
   /** Override default node/edge colors. */
   theme?: Partial<WorkflowTheme>;
+  /** Enable dark mode. */
+  darkMode?: boolean;
   /** Auto-fit the graph on data load (default: true). */
   fitView?: boolean;
   /** Minimum zoom level (default: 0.3). */
@@ -52,19 +63,22 @@ export interface WorkflowGraphProps {
 }
 
 const WorkflowGraph: React.FC<WorkflowGraphProps> = ({
-  data,
+  workflow,
+  execution,
   onNodeClick,
   selectedNodeId = null,
   theme: themeProp,
+  darkMode = false,
   fitView = true,
   minZoom = 0.3,
   maxZoom = 2,
   className,
   style,
 }) => {
-  const theme = useMemo<WorkflowTheme>(() => ({
-    colors: { ...DEFAULT_THEME.colors, ...themeProp?.colors }
-  }), [themeProp]);
+  const theme = useMemo<WorkflowTheme>(() => {
+    const defaultTheme = darkMode ? DEFAULT_DARK_THEME : DEFAULT_THEME;
+    return { colors: { ...defaultTheme.colors, ...themeProp?.colors } };
+  }, [themeProp, darkMode]);
 
   const WrappedWorkflowNode = React.useCallback((props: any) => {
     const isSelected = selectedNodeId === props.id;
@@ -75,33 +89,34 @@ const WorkflowGraph: React.FC<WorkflowGraphProps> = ({
     workflowNode: WrappedWorkflowNode,
   }), [WrappedWorkflowNode]);
 
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
-    return isCombinedWorkflowData(data)
-      ? parseCombinedWorkflowData(data)
-      : parseWorkflowData(data);
-  }, [data]);
+  const combinedData = useMemo(() => combineWorkflowData(workflow, execution), [workflow, execution]);
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(
+    () => parseCombinedWorkflowData(combinedData),
+    [combinedData]
+  );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] = React.useState<any>(null);
 
   React.useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = isCombinedWorkflowData(data)
-      ? parseCombinedWorkflowData(data)
-      : parseWorkflowData(data);
-
+    const { nodes: newNodes, edges: newEdges } = parseCombinedWorkflowData(
+      combineWorkflowData(workflow, execution)
+    );
     setNodes(newNodes);
     setEdges(newEdges);
 
     if (reactFlowInstance) {
       setTimeout(() => reactFlowInstance.fitView(), 100);
     }
-  }, [data, setNodes, setEdges, reactFlowInstance]);
+  }, [workflow, execution, setNodes, setEdges, reactFlowInstance]);
+
+  const rootClass = ['wf-root', darkMode ? 'wf-dark' : '', className].filter(Boolean).join(' ');
 
   return (
     <WorkflowThemeContext.Provider value={theme}>
       <div
-        className={className}
+        className={rootClass}
         style={{ width: '100%', height: '100%', minHeight: '400px', ...style }}
       >
         <ReactFlow
@@ -128,6 +143,8 @@ const WorkflowGraph: React.FC<WorkflowGraphProps> = ({
           <Controls position="bottom-left" />
           <MiniMap
             position="bottom-right"
+            bgColor={darkMode ? '#111827' : '#f8fafc'}
+            maskColor={darkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(240, 240, 240, 0.6)'}
             nodeColor={(node) => {
               const nodeData = node.data as NodeData | undefined;
               return getNodeTypeColor(
@@ -138,7 +155,7 @@ const WorkflowGraph: React.FC<WorkflowGraphProps> = ({
               );
             }}
           />
-          <Background variant={"dots" as any} gap={16} size={1} color="#d1d5db" />
+          <Background variant={"dots" as any} gap={16} size={1} color={darkMode ? '#374151' : '#d1d5db'} />
         </ReactFlow>
       </div>
     </WorkflowThemeContext.Provider>

@@ -21,9 +21,10 @@ interface NodeDetailPanelProps {
   isOpen: boolean;
   nodeData: NodeData | null;
   onClose: () => void;
+  darkMode?: boolean;
 }
 
-const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onClose }) => {
+const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onClose, darkMode = false }) => {
   const [modalData, setModalData] = React.useState<{ isOpen: boolean; title: string; data: any; subtitle?: string }>({
     isOpen: false,
     title: '',
@@ -149,16 +150,16 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
                       {definitionState.dataConditions.map((condition, index) => (
                         <div
                           key={index}
-                          className={`condition-item ${wasExecuted && executionState?.matchedCondition === condition.name ? 'matched' : 'unmatched'}`}
+                          className={`condition-item ${wasExecuted && (executionState?.matchedCondition === condition.name || executionState?.matchedCondition === condition.condition) ? 'matched' : 'unmatched'}`}
                         >
                           <div className="condition-header">
-                            <span className="condition-name">{condition.name}</span>
-                            {wasExecuted && executionState?.matchedCondition === condition.name && (
+                            <span className="condition-name">{condition.name ?? condition.condition}</span>
+                            {wasExecuted && (executionState?.matchedCondition === condition.name || executionState?.matchedCondition === condition.condition) && (
                               <span className="condition-badge">Matched</span>
                             )}
                           </div>
                           <div className="condition-expression">{condition.condition}</div>
-                          <div className="condition-target">→ {condition.transition.nextState}</div>
+                          <div className="condition-target">→ {typeof condition.transition === 'string' ? condition.transition : condition.transition.nextState}</div>
                         </div>
                       ))}
 
@@ -173,7 +174,7 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
                             )}
                           </div>
                           <div className="condition-expression">fallback condition</div>
-                          <div className="condition-target">→ {definitionState.defaultCondition.transition.nextState}</div>
+                          <div className="condition-target">→ {typeof definitionState.defaultCondition.transition === 'string' ? definitionState.defaultCondition.transition : definitionState.defaultCondition.transition.nextState}</div>
                         </div>
                       )}
                     </div>
@@ -316,7 +317,7 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
                             View Full
                           </button>
                         </div>
-                        <pre className="data-preview">{JSON.stringify(executionState.input, null, 2).substring(0, 200)}...</pre>
+                        <pre className="data-preview">{(() => { const s = JSON.stringify(executionState.input ?? null, null, 2); return s.length > 200 ? s.substring(0, 200) + '...' : s; })()}</pre>
                       </div>
                       <div className="data-item">
                         <div className="data-header">
@@ -329,7 +330,7 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
                             View Full
                           </button>
                         </div>
-                        <pre className="data-preview">{JSON.stringify(executionState.output, null, 2).substring(0, 200)}...</pre>
+                        <pre className="data-preview">{(() => { const s = JSON.stringify(executionState.output ?? null, null, 2); return s.length > 200 ? s.substring(0, 200) + '...' : s; })()}</pre>
                       </div>
                     </>
                   ) : (
@@ -344,7 +345,7 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
                           View Full
                         </button>
                       </div>
-                      <pre className="data-preview">{JSON.stringify(definitionState, null, 2).substring(0, 200)}...</pre>
+                      <pre className="data-preview">{(() => { const s = JSON.stringify(definitionState ?? null, null, 2); return s.length > 200 ? s.substring(0, 200) + '...' : s; })()}</pre>
                     </div>
                   )}
                 </div>
@@ -377,6 +378,7 @@ const NodeDetailPanel: React.FC<NodeDetailPanelProps> = ({ isOpen, nodeData, onC
             title={modalData.title}
             data={modalData.data}
             subtitle={modalData.subtitle}
+            darkMode={darkMode}
           />
         </>
       )}
