@@ -5,6 +5,7 @@ interface JsonModalProps {
     title: string;
     data: any;
     subtitle?: string;
+    darkMode?: boolean;
 }
 declare const JsonModal: React.FC<JsonModalProps>;
 export default JsonModal;

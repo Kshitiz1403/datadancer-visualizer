@@ -1,229 +1,195 @@
-import { jsx as e, jsxs as t, Fragment as O } from "react/jsx-runtime";
-import k, { useContext as Q, useState as Y, useMemo as I } from "react";
-import { Handle as j, Position as P, useNodesState as ee, useEdgesState as te, ReactFlow as ne, Controls as ie, MiniMap as ae, Background as re } from "@xyflow/react";
-import { createPortal as se } from "react-dom";
-import { Check as oe, Copy as ce, X as B, Zap as U, ZapOff as A, AlertCircle as R, Database as G, GitBranch as D, Activity as z, Clock as Z, ChevronRight as de, ShieldAlert as F, Shield as le, Eye as $ } from "lucide-react";
-const C = {
+import { jsx as e, jsxs as t, Fragment as D } from "react/jsx-runtime";
+import $, { useContext as ae, useState as se, useMemo as _ } from "react";
+import { Handle as j, Position as H, useNodesState as re, useEdgesState as oe, ReactFlow as ce, Controls as de, MiniMap as le, Background as ue } from "@xyflow/react";
+import { createPortal as me } from "react-dom";
+import { Check as he, Copy as fe, X, Zap as q, ZapOff as L, AlertCircle as P, Database as Q, GitBranch as I, Activity as A, Clock as Y, ChevronRight as pe, ShieldAlert as J, Shield as Ne, Eye as R } from "lucide-react";
+const T = {
   unexecuted: "#9ca3af",
   error: "#ef4444",
   operation: "#10b981",
   switch: "#f59e0b",
   default: "#6366f1"
-}, ue = (a, h) => !a || !h ? !1 : a.toLowerCase().includes(h.toLowerCase()), me = (a) => {
+}, ge = (a, l) => !a || !l ? !1 : a.toLowerCase().includes(l.toLowerCase()), ve = (a) => {
   if (!a.hasError || !a.definition.onErrors || !a.execution)
     return null;
-  const h = a.execution.error || a.execution.actions?.find((s) => s.error)?.error;
-  if (!h) return null;
-  for (const s of a.definition.onErrors)
-    if (s.errorRef !== "DefaultErrorRef" && ue(h, s.errorRef)) {
-      const d = typeof s.transition == "string" ? s.transition : s.transition.nextState;
-      return { errorHandler: s, nextState: d };
+  const l = a.execution.error || a.execution.actions?.find((h) => h.error)?.error;
+  if (!l) return null;
+  for (const h of a.definition.onErrors)
+    if (h.errorRef !== "DefaultErrorRef" && ge(l, h.errorRef)) {
+      const d = typeof h.transition == "string" ? h.transition : h.transition.nextState;
+      return { errorHandler: h, nextState: d };
     }
-  const m = a.definition.onErrors.find((s) => s.errorRef === "DefaultErrorRef");
-  if (m) {
-    const s = typeof m.transition == "string" ? m.transition : m.transition.nextState;
-    return { errorHandler: m, nextState: s };
+  const p = a.definition.onErrors.find((h) => h.errorRef === "DefaultErrorRef");
+  if (p) {
+    const h = typeof p.transition == "string" ? p.transition : p.transition.nextState;
+    return { errorHandler: p, nextState: h };
   }
   return null;
-}, M = (a) => typeof a.transition == "string" ? a.transition : a.transition.nextState, L = (a) => !a.transition || a.end ? null : typeof a.transition == "string" ? a.transition : a.transition.nextState ? a.transition.nextState : null, J = (a) => {
-  const h = [], m = [];
-  return a.states.forEach((s, d) => {
-    const u = new Date(s.startTime).getTime(), f = new Date(s.endTime).getTime() - u, c = !!(s.error || s.actions?.some((v) => v.error)), o = {
-      label: s.name,
-      state: {
-        name: s.name,
-        type: s.type,
-        definition: s,
-        wasExecuted: !0,
-        hasError: c,
-        duration: f,
-        execution: s
-      },
-      duration: f,
-      hasError: c,
-      wasExecuted: !0
-    }, n = Math.floor(d / 3), b = d % 3 * 380, x = n * 220 + (s.type === "switch" ? 50 : 0);
-    if (h.push({
-      id: `state-${d}`,
-      type: "workflowNode",
-      position: { x: b, y: x },
-      data: o,
-      draggable: !0
-    }), d < a.states.length - 1) {
-      const v = !!(s.error || s.actions?.some((S) => S.error));
-      let y = C.operation;
-      v ? y = C.error : s.type === "switch" && (y = C.switch), m.push({
-        id: `edge-${d}`,
-        source: `state-${d}`,
-        target: `state-${d + 1}`,
-        type: "default",
-        animated: !v,
-        style: {
-          stroke: y,
-          strokeWidth: 2,
-          strokeDasharray: v ? "5,5" : void 0
-        }
-      });
-    }
-  }), { nodes: h, edges: m };
-}, V = (a) => {
-  const h = [], m = [], s = /* @__PURE__ */ new Map(), d = /* @__PURE__ */ new Map();
-  a.states.forEach((i) => {
-    d.set(i.name, i);
+}, F = (a) => typeof a.transition == "string" ? a.transition : a.transition.nextState, V = (a) => !a.transition || a.end ? null : typeof a.transition == "string" ? a.transition : a.transition.nextState ? a.transition.nextState : null, B = (a) => {
+  const l = [], p = [], h = /* @__PURE__ */ new Map(), d = /* @__PURE__ */ new Map();
+  a.states.forEach((n) => {
+    d.set(n.name, n);
   });
-  const u = (i, f, c, o) => {
-    if (f.has(i) || !d.has(i)) return;
-    f.add(i);
-    const n = d.get(i);
-    s.set(i, { x: c * 400, y: o * 250 });
-    let l = 0;
-    if (n.definition.type === "switch")
-      n.definition.dataConditions && n.definition.dataConditions.forEach((b) => {
-        u(b.transition.nextState, f, c + 1, o + l), l++;
-      }), n.definition.defaultCondition && (u(n.definition.defaultCondition.transition.nextState, f, c + 1, o + l), l++);
-    else {
-      const b = L(n.definition);
-      b && (u(b, f, c + 1, o + l), l++), n.definition.onErrors && n.definition.onErrors.forEach((x, v) => {
-        const y = M(x);
-        u(y, f, c + 1, o + l + v);
+  const m = (n, f, c, u) => {
+    if (f.has(n) || !d.has(n)) return;
+    f.add(n);
+    const r = d.get(n);
+    h.set(n, { x: c * 400, y: u * 250 });
+    let s = 0;
+    if (r.definition.type === "switch") {
+      if (r.definition.dataConditions && r.definition.dataConditions.forEach((o) => {
+        const C = typeof o.transition == "string" ? o.transition : o.transition.nextState;
+        m(C, f, c + 1, u + s), s++;
+      }), r.definition.defaultCondition) {
+        const o = typeof r.definition.defaultCondition.transition == "string" ? r.definition.defaultCondition.transition : r.definition.defaultCondition.transition.nextState;
+        m(o, f, c + 1, u + s), s++;
+      }
+    } else {
+      const o = V(r.definition);
+      o && (m(o, f, c + 1, u + s), s++), r.definition.onErrors && r.definition.onErrors.forEach((C, E) => {
+        const x = F(C);
+        m(x, f, c + 1, u + s + E);
       });
     }
   };
-  return u(a.startState, /* @__PURE__ */ new Set(), 0, 0), a.states.forEach((i, f) => {
-    const c = i.duration || 0, o = {
-      label: i.name,
-      state: i,
+  return m(a.startState, /* @__PURE__ */ new Set(), 0, 0), a.states.forEach((n, f) => {
+    const c = n.duration || 0, u = {
+      label: n.name,
+      state: n,
       duration: c,
-      hasError: i.hasError,
-      wasExecuted: i.wasExecuted
-    }, n = s.get(i.name) || { x: f * 400, y: 0 };
-    h.push({
-      id: `state-${i.name}`,
+      hasError: n.hasError,
+      wasExecuted: n.wasExecuted
+    }, r = h.get(n.name) || { x: f * 400, y: 0 };
+    l.push({
+      id: `state-${n.name}`,
       type: "workflowNode",
-      position: n,
-      data: o,
-      draggable: !0,
-      className: i.wasExecuted ? "executed-node" : "unexecuted-node"
+      position: r,
+      data: u,
+      className: n.wasExecuted ? "executed-node" : "unexecuted-node"
     });
-  }), a.states.forEach((i) => {
-    const f = `state-${i.name}`;
-    if (i.definition.type === "switch") {
-      if (i.definition.dataConditions && i.definition.dataConditions.forEach((c) => {
-        const o = `state-${c.transition.nextState}`, n = i.wasExecuted && i.execution?.matchedCondition === c.name;
-        m.push({
-          id: `edge-${i.name}-${c.name}`,
+  }), a.states.forEach((n) => {
+    const f = `state-${n.name}`;
+    if (n.definition.type === "switch") {
+      if (n.definition.dataConditions && n.definition.dataConditions.forEach((c, u) => {
+        const s = `state-${typeof c.transition == "string" ? c.transition : c.transition.nextState}`, o = c.name ?? c.condition, C = n.execution?.matchedCondition, E = n.wasExecuted && !!(C && (C === c.name || C === c.condition));
+        p.push({
+          id: `edge-${n.name}-${o}`,
           source: f,
-          target: o,
+          sourceHandle: `condition-${u}`,
+          target: s,
           type: "default",
-          label: c.name,
-          animated: n,
+          label: o,
+          animated: E,
           style: {
-            stroke: n ? C.switch : "#d1d5db",
-            strokeWidth: n ? 2 : 1,
-            strokeDasharray: n ? void 0 : "5,5"
+            stroke: E ? T.switch : "#d1d5db",
+            strokeWidth: E ? 3 : 2,
+            strokeDasharray: E ? void 0 : "5,5"
           },
           labelStyle: {
             fontSize: 11,
-            fontWeight: n ? 600 : 400,
-            fill: n ? C.switch : "#6b7280"
+            fontWeight: E ? 600 : 400,
+            fill: E ? T.switch : "#6b7280"
           }
         });
-      }), i.definition.defaultCondition) {
-        const c = `state-${i.definition.defaultCondition.transition.nextState}`, o = i.wasExecuted && i.execution?.matchedCondition === "default";
-        m.push({
-          id: `edge-${i.name}-default`,
+      }), n.definition.defaultCondition) {
+        const c = `state-${typeof n.definition.defaultCondition.transition == "string" ? n.definition.defaultCondition.transition : n.definition.defaultCondition.transition.nextState}`, u = n.wasExecuted && n.execution?.matchedCondition === "default";
+        p.push({
+          id: `edge-${n.name}-default`,
           source: f,
+          sourceHandle: "condition-default",
           target: c,
           type: "default",
           label: "default",
-          animated: o,
+          animated: u,
           style: {
-            stroke: o ? C.switch : "#d1d5db",
-            strokeWidth: o ? 2 : 1,
-            strokeDasharray: o ? void 0 : "5,5"
+            stroke: u ? T.switch : "#d1d5db",
+            strokeWidth: u ? 3 : 2,
+            strokeDasharray: u ? void 0 : "5,5"
           },
           labelStyle: {
             fontSize: 11,
-            fontWeight: o ? 600 : 400,
-            fill: o ? C.switch : "#6b7280"
+            fontWeight: u ? 600 : 400,
+            fill: u ? T.switch : "#6b7280"
           }
         });
       }
     } else {
-      const c = me(i), o = L(i.definition);
-      if (o) {
-        const n = `state-${o}`, l = i.wasExecuted && !i.hasError;
-        let b = C.operation;
-        (i.hasError || !i.wasExecuted) && (b = "#d1d5db"), m.push({
-          id: `edge-${i.name}-${o}`,
+      const c = ve(n), u = V(n.definition);
+      if (u) {
+        const r = `state-${u}`, s = n.wasExecuted && !n.hasError;
+        let o = T.operation;
+        (n.hasError || !n.wasExecuted) && (o = "#d1d5db"), p.push({
+          id: `edge-${n.name}-${u}`,
           source: f,
-          target: n,
+          target: r,
           type: "default",
-          animated: l,
+          animated: s,
           style: {
-            stroke: b,
-            strokeWidth: l ? 2 : 1,
-            strokeDasharray: l ? void 0 : "5,5"
+            stroke: o,
+            strokeWidth: s ? 3 : 2,
+            strokeDasharray: s ? void 0 : "5,5"
           }
         });
       }
-      c ? (m.push({
-        id: `edge-${i.name}-error-${c.errorHandler.errorRef}`,
+      c ? (p.push({
+        id: `edge-${n.name}-error-${c.errorHandler.errorRef}`,
         source: f,
         target: `state-${c.nextState}`,
         type: "default",
         label: `error: ${c.errorHandler.errorRef}`,
         animated: !0,
-        style: { stroke: C.error, strokeWidth: 2, strokeDasharray: "3,3" },
-        labelStyle: { fontSize: 10, fontWeight: 600, fill: C.error }
-      }), i.definition.onErrors && i.definition.onErrors.forEach((n) => {
-        n.errorRef !== c.errorHandler.errorRef && m.push({
-          id: `edge-${i.name}-error-unexecuted-${n.errorRef}`,
+        style: { stroke: T.error, strokeWidth: 3, strokeDasharray: "3,3" },
+        labelStyle: { fontSize: 10, fontWeight: 600, fill: T.error }
+      }), n.definition.onErrors && n.definition.onErrors.forEach((r) => {
+        r.errorRef !== c.errorHandler.errorRef && p.push({
+          id: `edge-${n.name}-error-unexecuted-${r.errorRef}`,
           source: f,
-          target: `state-${M(n)}`,
+          target: `state-${F(r)}`,
           type: "default",
-          label: `error: ${n.errorRef}`,
+          label: `error: ${r.errorRef}`,
           animated: !1,
-          style: { stroke: "#d1d5db", strokeWidth: 1, strokeDasharray: "5,5" },
+          style: { stroke: "#d1d5db", strokeWidth: 2, strokeDasharray: "5,5" },
           labelStyle: { fontSize: 10, fontWeight: 400, fill: "#6b7280" }
         });
-      })) : i.definition.onErrors && i.definition.onErrors.forEach((n) => {
-        m.push({
-          id: `edge-${i.name}-error-unexecuted-${n.errorRef}`,
+      })) : n.definition.onErrors && n.definition.onErrors.forEach((r) => {
+        p.push({
+          id: `edge-${n.name}-error-unexecuted-${r.errorRef}`,
           source: f,
-          target: `state-${M(n)}`,
+          target: `state-${F(r)}`,
           type: "default",
-          label: `error: ${n.errorRef}`,
+          label: `error: ${r.errorRef}`,
           animated: !1,
-          style: { stroke: "#d1d5db", strokeWidth: 1, strokeDasharray: "5,5" },
+          style: { stroke: "#d1d5db", strokeWidth: 2, strokeDasharray: "5,5" },
           labelStyle: { fontSize: 10, fontWeight: 400, fill: "#6b7280" }
         });
       });
     }
-  }), { nodes: h, edges: m };
-}, be = (a, h) => {
-  const m = /* @__PURE__ */ new Map();
-  h && h.states.forEach((d) => {
-    m.set(d.name, d);
+  }), { nodes: l, edges: p };
+}, U = (a, l) => {
+  if (!a)
+    return { definition: a, execution: l, states: [], startState: "" };
+  const p = /* @__PURE__ */ new Map();
+  l && l.states.forEach((d) => {
+    p.set(d.name, d);
   });
-  const s = a.states.map((d) => {
-    const u = m.get(d.name), i = !!u, f = i ? !!(u.error || u.actions?.some((o) => o.error)) : !1;
+  const h = (a.states ?? []).map((d) => {
+    const m = p.get(d.name), n = !!m, f = n ? !!(m.error || m.actions?.some((u) => u.error)) : !1;
     let c = 0;
-    return i && u.startTime && u.endTime && (c = new Date(u.endTime).getTime() - new Date(u.startTime).getTime()), {
+    return n && m.startTime && m.endTime && (c = new Date(m.endTime).getTime() - new Date(m.startTime).getTime()), {
       name: d.name,
       type: d.type,
       definition: d,
-      execution: u,
-      wasExecuted: i,
+      execution: m,
+      wasExecuted: n,
       hasError: f,
       duration: c
     };
   });
-  return { definition: a, execution: h, states: s, startState: a.start };
-}, W = (a) => a < 1e3 ? `${a}ms` : `${(a / 1e3).toFixed(2)}s`, _ = (a, h, m = !0, s) => {
-  const d = s?.colors ?? C;
-  if (h) return d.error;
-  if (!m) return d.unexecuted;
+  return { definition: a, execution: l, states: h, startState: a.start };
+}, M = (a) => a < 1e3 ? `${a}ms` : `${(a / 1e3).toFixed(2)}s`, ee = (a, l, p = !0, h) => {
+  const d = h?.colors ?? T;
+  if (l) return d.error;
+  if (!p) return d.unexecuted;
   switch (a) {
     case "operation":
       return d.operation;
@@ -232,24 +198,24 @@ const C = {
     default:
       return d.default;
   }
-}, X = ({ isOpen: a, onClose: h, title: m, data: s, subtitle: d }) => {
-  const [u, i] = k.useState(!1);
-  if (k.useEffect(() => {
-    const n = (l) => {
-      l.key === "Escape" && h();
+}, te = ({ isOpen: a, onClose: l, title: p, data: h, subtitle: d, darkMode: m = !1 }) => {
+  const [n, f] = $.useState(!1);
+  if ($.useEffect(() => {
+    const s = (o) => {
+      o.key === "Escape" && l();
     };
-    return a && (document.addEventListener("keydown", n), document.body.style.overflow = "hidden"), () => {
-      document.removeEventListener("keydown", n), document.body.style.overflow = "unset";
+    return a && (document.addEventListener("keydown", s), document.body.style.overflow = "hidden"), () => {
+      document.removeEventListener("keydown", s), document.body.style.overflow = "unset";
     };
-  }, [a, h]), !a) return null;
-  const f = JSON.stringify(s, null, 2);
-  return se(
-    /* @__PURE__ */ e("div", { className: "json-modal-backdrop", onClick: (n) => {
-      n.target === n.currentTarget && h();
+  }, [a, l]), !a) return null;
+  const c = JSON.stringify(h, null, 2);
+  return me(
+    /* @__PURE__ */ e("div", { className: `wf-root${m ? " wf-dark" : ""} json-modal-backdrop`, onClick: (s) => {
+      s.target === s.currentTarget && l();
     }, children: /* @__PURE__ */ t("div", { className: "json-modal", children: [
       /* @__PURE__ */ t("div", { className: "json-modal-header", children: [
         /* @__PURE__ */ t("div", { children: [
-          /* @__PURE__ */ e("h2", { children: m }),
+          /* @__PURE__ */ e("h2", { children: p }),
           d && /* @__PURE__ */ e("p", { className: "json-modal-subtitle", children: d })
         ] }),
         /* @__PURE__ */ t("div", { className: "json-modal-actions", children: [
@@ -259,15 +225,15 @@ const C = {
               className: "json-modal-copy-btn",
               onClick: async () => {
                 try {
-                  await navigator.clipboard.writeText(f), i(!0), setTimeout(() => i(!1), 2e3);
-                } catch (n) {
-                  console.error("Failed to copy:", n);
+                  await navigator.clipboard.writeText(c), f(!0), setTimeout(() => f(!1), 2e3);
+                } catch (s) {
+                  console.error("Failed to copy:", s);
                 }
               },
               title: "Copy JSON",
               children: [
-                u ? /* @__PURE__ */ e(oe, { size: 18 }) : /* @__PURE__ */ e(ce, { size: 18 }),
-                u ? "Copied!" : "Copy"
+                n ? /* @__PURE__ */ e(he, { size: 18 }) : /* @__PURE__ */ e(fe, { size: 18 }),
+                n ? "Copied!" : "Copy"
               ]
             }
           ),
@@ -275,148 +241,183 @@ const C = {
             "button",
             {
               className: "json-modal-close-btn",
-              onClick: h,
+              onClick: l,
               title: "Close",
-              children: /* @__PURE__ */ e(B, { size: 20 })
+              children: /* @__PURE__ */ e(X, { size: 20 })
             }
           )
         ] })
       ] }),
-      /* @__PURE__ */ e("div", { className: "json-modal-content", children: /* @__PURE__ */ e("pre", { className: "json-display", children: f }) })
+      /* @__PURE__ */ e("div", { className: "json-modal-content", children: /* @__PURE__ */ e("pre", { className: "json-display", children: c }) })
     ] }) }),
     document.body
   );
-}, he = ({ data: a, onNodeClick: h, isSelected: m, id: s }) => {
-  const d = Q(K), [u, i] = Y({
+}, ye = 45, we = 14, Ce = 46, G = 26, Ee = 4, K = (a) => ye + we + Ce + a * (G + Ee) + G / 2, Z = (a) => {
+  if (a == null) return "null";
+  const l = JSON.stringify(a) ?? "null";
+  return l.length > 50 ? l.substring(0, 50) + "..." : l;
+}, be = ({ data: a, onNodeClick: l, isSelected: p, id: h }) => {
+  const d = ae(ie), [m, n] = se({
     isOpen: !1,
     title: "",
     data: null,
     subtitle: ""
-  }), { label: f, state: c, duration: o, hasError: n, wasExecuted: l } = a, b = _(c.type, n, l, d), x = () => {
-    const p = { size: 16, style: { color: b } };
+  }), { label: f, state: c, duration: u, hasError: r, wasExecuted: s } = a, o = ee(c.type, r, s, d), C = () => {
+    const N = { size: 16, style: { color: o } };
     switch (c.type) {
       case "operation":
-        return /* @__PURE__ */ e(z, { ...p });
+        return /* @__PURE__ */ e(A, { ...N });
       case "switch":
-        return /* @__PURE__ */ e(D, { ...p });
+        return /* @__PURE__ */ e(I, { ...N });
       default:
-        return /* @__PURE__ */ e(G, { ...p });
+        return /* @__PURE__ */ e(Q, { ...N });
     }
-  }, v = () => {
-    i({ isOpen: !1, title: "", data: null, subtitle: "" });
-  }, y = n ? "error" : c.type, S = m ? "selected" : "", N = c.execution, r = c.definition, g = (p) => {
-    p.target.closest("button") || h?.(a, s || "");
-  }, w = () => N ? /* @__PURE__ */ t(O, { children: [
+  }, E = () => {
+    n({ isOpen: !1, title: "", data: null, subtitle: "" });
+  }, x = r ? "error" : c.type, S = p ? "selected" : "", g = c.execution, y = c.definition, i = (N) => {
+    N.target.closest("button") || l?.(a, h || "");
+  }, v = () => g ? /* @__PURE__ */ t(D, { children: [
     /* @__PURE__ */ t("div", { className: "node-meta", children: [
       /* @__PURE__ */ t("div", { className: "meta-item", children: [
-        /* @__PURE__ */ e(Z, { size: 14 }),
-        /* @__PURE__ */ e("span", { children: W(o) })
+        /* @__PURE__ */ e(Y, { size: 14 }),
+        /* @__PURE__ */ e("span", { children: M(u) })
       ] }),
-      N.actions && N.actions.length > 0 && /* @__PURE__ */ t("div", { className: "meta-item", children: [
-        /* @__PURE__ */ e(z, { size: 14 }),
+      g.actions && g.actions.length > 0 && /* @__PURE__ */ t("div", { className: "meta-item", children: [
+        /* @__PURE__ */ e(A, { size: 14 }),
         /* @__PURE__ */ t("span", { children: [
-          N.actions.length,
+          g.actions.length,
           " action",
-          N.actions.length !== 1 ? "s" : ""
+          g.actions.length !== 1 ? "s" : ""
         ] })
       ] })
     ] }),
     /* @__PURE__ */ t("div", { className: "node-summary", children: [
-      c.type === "switch" && N.matchedCondition && /* @__PURE__ */ t("div", { className: "summary-item condition-item", children: [
-        /* @__PURE__ */ e(D, { size: 12 }),
+      c.type === "switch" && g.matchedCondition && /* @__PURE__ */ t("div", { className: "summary-item condition-item", children: [
+        /* @__PURE__ */ e(I, { size: 12 }),
         /* @__PURE__ */ t("span", { children: [
           "Matched: ",
-          N.matchedCondition
+          g.matchedCondition
         ] })
       ] }),
-      N.actions && N.actions.length > 0 && /* @__PURE__ */ e("div", { className: "summary-item actions-preview", children: /* @__PURE__ */ t("div", { className: "actions-list", children: [
-        N.actions.slice(0, 2).map((p, E) => /* @__PURE__ */ t("div", { className: "action-preview", children: [
-          /* @__PURE__ */ e("span", { className: "action-preview-name", children: p.activityName }),
-          /* @__PURE__ */ e("span", { className: "action-preview-duration", children: W(new Date(p.endTime).getTime() - new Date(p.startTime).getTime()) }),
-          p.error && /* @__PURE__ */ e(R, { size: 10, className: "action-preview-error" })
-        ] }, E)),
-        N.actions.length > 2 && /* @__PURE__ */ t("div", { className: "action-preview more-actions", children: [
+      g.actions && g.actions.length > 0 && /* @__PURE__ */ e("div", { className: "summary-item actions-preview", children: /* @__PURE__ */ t("div", { className: "actions-list", children: [
+        g.actions.slice(0, 2).map((N, k) => /* @__PURE__ */ t("div", { className: "action-preview", children: [
+          /* @__PURE__ */ e("span", { className: "action-preview-name", children: N.activityName }),
+          /* @__PURE__ */ e("span", { className: "action-preview-duration", children: M(new Date(N.endTime).getTime() - new Date(N.startTime).getTime()) }),
+          N.error && /* @__PURE__ */ e(P, { size: 10, className: "action-preview-error" })
+        ] }, k)),
+        g.actions.length > 2 && /* @__PURE__ */ t("div", { className: "action-preview more-actions", children: [
           "+",
-          N.actions.length - 2,
+          g.actions.length - 2,
           " more"
         ] })
       ] }) }),
       /* @__PURE__ */ e("div", { className: "summary-item data-preview", children: /* @__PURE__ */ t("div", { className: "data-preview-grid", children: [
         /* @__PURE__ */ t("div", { className: "data-preview-item", children: [
           /* @__PURE__ */ e("span", { className: "data-label", children: "Input" }),
-          /* @__PURE__ */ e("span", { className: "data-preview-text", children: typeof N.input == "object" ? `${Object.keys(N.input || {}).length} fields` : String(N.input).substring(0, 20) + "..." })
+          /* @__PURE__ */ e("span", { className: "data-preview-text", children: Z(g.input) })
         ] }),
         /* @__PURE__ */ t("div", { className: "data-preview-item", children: [
           /* @__PURE__ */ e("span", { className: "data-label", children: "Output" }),
-          /* @__PURE__ */ e("span", { className: "data-preview-text", children: typeof N.output == "object" ? `${Object.keys(N.output || {}).length} fields` : String(N.output).substring(0, 20) + "..." })
+          /* @__PURE__ */ e("span", { className: "data-preview-text", children: Z(g.output) })
         ] })
       ] }) })
     ] })
-  ] }) : null, T = () => /* @__PURE__ */ t(O, { children: [
+  ] }) : null, w = () => /* @__PURE__ */ t(D, { children: [
     /* @__PURE__ */ t("div", { className: "node-meta", children: [
       /* @__PURE__ */ t("div", { className: "meta-item", children: [
-        /* @__PURE__ */ e(A, { size: 14 }),
+        /* @__PURE__ */ e(L, { size: 14 }),
         /* @__PURE__ */ e("span", { children: "Not executed" })
       ] }),
-      r.actions && r.actions.length > 0 && /* @__PURE__ */ t("div", { className: "meta-item", children: [
-        /* @__PURE__ */ e(z, { size: 14 }),
+      y.actions && y.actions.length > 0 && /* @__PURE__ */ t("div", { className: "meta-item", children: [
+        /* @__PURE__ */ e(A, { size: 14 }),
         /* @__PURE__ */ t("span", { children: [
-          r.actions.length,
+          y.actions.length,
           " planned action",
-          r.actions.length !== 1 ? "s" : ""
+          y.actions.length !== 1 ? "s" : ""
         ] })
       ] })
     ] }),
     /* @__PURE__ */ t("div", { className: "node-summary", children: [
-      c.type === "switch" && r.dataConditions && /* @__PURE__ */ e("div", { className: "summary-item", children: /* @__PURE__ */ t("div", { className: "actions-list", children: [
-        r.dataConditions.map((p, E) => /* @__PURE__ */ t("div", { className: "condition-item unexecuted", children: [
-          /* @__PURE__ */ e(D, { size: 12 }),
-          /* @__PURE__ */ t("span", { children: [
-            p.name,
-            ": ",
-            p.condition
-          ] })
-        ] }, E)),
-        r.defaultCondition && /* @__PURE__ */ t("div", { className: "condition-item unexecuted", children: [
-          /* @__PURE__ */ e(D, { size: 12 }),
+      c.type === "switch" && y.dataConditions && /* @__PURE__ */ e("div", { className: "summary-item", children: /* @__PURE__ */ t("div", { className: "actions-list", children: [
+        y.dataConditions.map((N, k) => /* @__PURE__ */ t("div", { className: "condition-item unexecuted", children: [
+          /* @__PURE__ */ e(I, { size: 12 }),
+          /* @__PURE__ */ e("span", { children: N.name ? `${N.name}: ${N.condition}` : N.condition })
+        ] }, k)),
+        y.defaultCondition && /* @__PURE__ */ t("div", { className: "condition-item unexecuted", children: [
+          /* @__PURE__ */ e(I, { size: 12 }),
           /* @__PURE__ */ e("span", { children: "default: fallback" })
         ] })
       ] }) }),
-      r.actions && r.actions.length > 0 && /* @__PURE__ */ e("div", { className: "summary-item actions-preview", children: /* @__PURE__ */ t("div", { className: "actions-list", children: [
-        r.actions.slice(0, 2).map((p, E) => /* @__PURE__ */ t("div", { className: "action-preview unexecuted", children: [
-          /* @__PURE__ */ e("span", { className: "action-preview-name", children: p.functionRef.refName }),
+      y.actions && y.actions.length > 0 && /* @__PURE__ */ e("div", { className: "summary-item actions-preview", children: /* @__PURE__ */ t("div", { className: "actions-list", children: [
+        y.actions.slice(0, 2).map((N, k) => /* @__PURE__ */ t("div", { className: "action-preview unexecuted", children: [
+          /* @__PURE__ */ e("span", { className: "action-preview-name", children: N.functionRef.refName }),
           /* @__PURE__ */ e("span", { className: "action-preview-duration", children: "planned" })
-        ] }, E)),
-        r.actions.length > 2 && /* @__PURE__ */ t("div", { className: "action-preview more-actions", children: [
+        ] }, k)),
+        y.actions.length > 2 && /* @__PURE__ */ t("div", { className: "action-preview more-actions", children: [
           "+",
-          r.actions.length - 2,
+          y.actions.length - 2,
           " more planned"
         ] })
       ] }) })
     ] })
+  ] }), W = () => {
+    const N = y.dataConditions ?? [], k = g?.matchedCondition;
+    return /* @__PURE__ */ t(D, { children: [
+      N.map((O, b) => {
+        const z = s && !!(k && (k === O.name || k === O.condition));
+        return /* @__PURE__ */ e(
+          j,
+          {
+            type: "source",
+            position: H.Right,
+            id: `condition-${b}`,
+            style: { top: K(b) },
+            className: `condition-handle ${z ? "executed-handle" : "unexecuted-handle"}`
+          },
+          `condition-${b}`
+        );
+      }),
+      y.defaultCondition && (() => {
+        const O = s && k === "default";
+        return /* @__PURE__ */ e(
+          j,
+          {
+            type: "source",
+            position: H.Right,
+            id: "condition-default",
+            style: { top: K(N.length) },
+            className: `condition-handle ${O ? "default-executed-handle" : "default-handle"}`
+          },
+          "condition-default"
+        );
+      })()
+    ] });
+  };
+  return /* @__PURE__ */ t(D, { children: [
+    /* @__PURE__ */ t("div", { className: `workflow-node ${x} ${S}`, onClick: i, children: [
+      /* @__PURE__ */ e(j, { type: "target", position: H.Left }),
+      /* @__PURE__ */ e("div", { className: "node-header", children: /* @__PURE__ */ t("div", { className: "node-title", children: [
+        s ? /* @__PURE__ */ e(q, { size: 16, className: "success-icon" }) : /* @__PURE__ */ e(L, { size: 16, className: "unexecuted-icon" }),
+        C(),
+        /* @__PURE__ */ e("span", { children: f }),
+        r && /* @__PURE__ */ e(P, { size: 16, className: "error-icon" })
+      ] }) }),
+      /* @__PURE__ */ e("div", { className: "node-content", children: s ? v() : w() }),
+      c.type !== "switch" && /* @__PURE__ */ e(j, { type: "source", position: H.Right }),
+      /* @__PURE__ */ e(
+        te,
+        {
+          isOpen: m.isOpen,
+          onClose: E,
+          title: m.title,
+          data: m.data,
+          subtitle: m.subtitle
+        }
+      )
+    ] }),
+    c.type === "switch" && W()
   ] });
-  return /* @__PURE__ */ t("div", { className: `workflow-node ${y} ${S}`, onClick: g, children: [
-    /* @__PURE__ */ e(j, { type: "target", position: P.Left }),
-    /* @__PURE__ */ e("div", { className: "node-header", children: /* @__PURE__ */ t("div", { className: "node-title", children: [
-      l ? /* @__PURE__ */ e(U, { size: 16, className: "success-icon" }) : /* @__PURE__ */ e(A, { size: 16, className: "unexecuted-icon" }),
-      x(),
-      /* @__PURE__ */ e("span", { children: f }),
-      n && /* @__PURE__ */ e(R, { size: 16, className: "error-icon" })
-    ] }) }),
-    /* @__PURE__ */ e("div", { className: "node-content", children: l ? w() : T() }),
-    /* @__PURE__ */ e(j, { type: "source", position: P.Right }),
-    /* @__PURE__ */ e(
-      X,
-      {
-        isOpen: u.isOpen,
-        onClose: v,
-        title: u.title,
-        data: u.data,
-        subtitle: u.subtitle
-      }
-    )
-  ] });
-}, q = {
+}, ne = {
   colors: {
     executed: "#10b981",
     unexecuted: "#9ca3af",
@@ -425,205 +426,223 @@ const C = {
     switch: "#f59e0b",
     default: "#6366f1"
   }
-}, K = k.createContext(q), H = (a) => "definition" in a && "startState" in a, fe = ({
-  data: a,
-  onNodeClick: h,
-  selectedNodeId: m = null,
-  theme: s,
-  fitView: d = !0,
-  minZoom: u = 0.3,
-  maxZoom: i = 2,
-  className: f,
-  style: c
+}, xe = {
+  colors: {
+    executed: "#34d399",
+    unexecuted: "#9ca3af",
+    error: "#f87171",
+    operation: "#34d399",
+    switch: "#fbbf24",
+    default: "#818cf8"
+  }
+}, ie = $.createContext(ne), Se = ({
+  workflow: a,
+  execution: l,
+  onNodeClick: p,
+  selectedNodeId: h = null,
+  theme: d,
+  darkMode: m = !1,
+  fitView: n = !0,
+  minZoom: f = 0.3,
+  maxZoom: c = 2,
+  className: u,
+  style: r
 }) => {
-  const o = I(() => ({
-    colors: { ...q.colors, ...s?.colors }
-  }), [s]), n = k.useCallback((p) => {
-    const E = m === p.id;
-    return /* @__PURE__ */ e(he, { ...p, onNodeClick: h, isSelected: E });
-  }, [h, m]), l = k.useMemo(() => ({
-    workflowNode: n
-  }), [n]), { nodes: b, edges: x } = I(() => H(a) ? V(a) : J(a), [a]), [v, y, S] = ee(b), [N, r, g] = te(x), [w, T] = k.useState(null);
-  return k.useEffect(() => {
-    const { nodes: p, edges: E } = H(a) ? V(a) : J(a);
-    y(p), r(E), w && setTimeout(() => w.fitView(), 100);
-  }, [a, y, r, w]), /* @__PURE__ */ e(K.Provider, { value: o, children: /* @__PURE__ */ e(
+  const s = _(() => ({ colors: { ...(m ? xe : ne).colors, ...d?.colors } }), [d, m]), o = $.useCallback((b) => {
+    const z = h === b.id;
+    return /* @__PURE__ */ e(be, { ...b, onNodeClick: p, isSelected: z });
+  }, [p, h]), C = $.useMemo(() => ({
+    workflowNode: o
+  }), [o]), E = _(() => U(a, l), [a, l]), { nodes: x, edges: S } = _(
+    () => B(E),
+    [E]
+  ), [g, y, i] = re(x), [v, w, W] = oe(S), [N, k] = $.useState(null);
+  $.useEffect(() => {
+    const { nodes: b, edges: z } = B(
+      U(a, l)
+    );
+    y(b), w(z), N && setTimeout(() => N.fitView(), 100);
+  }, [a, l, y, w, N]);
+  const O = ["wf-root", m ? "wf-dark" : "", u].filter(Boolean).join(" ");
+  return /* @__PURE__ */ e(ie.Provider, { value: s, children: /* @__PURE__ */ e(
     "div",
     {
-      className: f,
-      style: { width: "100%", height: "100%", minHeight: "400px", ...c },
+      className: O,
+      style: { width: "100%", height: "100%", minHeight: "400px", ...r },
       children: /* @__PURE__ */ t(
-        ne,
+        ce,
         {
-          nodes: v,
-          edges: N,
-          onNodesChange: S,
-          onEdgesChange: g,
-          nodeTypes: l,
-          fitView: d,
-          fitViewOptions: { padding: 100, minZoom: u, maxZoom: i },
+          nodes: g,
+          edges: v,
+          onNodesChange: i,
+          onEdgesChange: W,
+          nodeTypes: C,
+          fitView: n,
+          fitViewOptions: { padding: 100, minZoom: f, maxZoom: c },
           defaultViewport: { x: 0, y: 0, zoom: 0.8 },
           attributionPosition: "bottom-left",
           proOptions: { hideAttribution: !0 },
-          onInit: (p) => {
-            T(p), setTimeout(() => p.fitView(), 100);
+          onInit: (b) => {
+            k(b), setTimeout(() => b.fitView(), 100);
           },
           panOnScroll: !0,
           zoomOnScroll: !0,
           zoomOnPinch: !0,
           panOnScrollSpeed: 0.85,
           children: [
-            /* @__PURE__ */ e(ie, { position: "bottom-left" }),
+            /* @__PURE__ */ e(de, { position: "bottom-left" }),
             /* @__PURE__ */ e(
-              ae,
+              le,
               {
                 position: "bottom-right",
-                nodeColor: (p) => {
-                  const E = p.data;
-                  return _(
-                    E?.state?.type ?? "",
-                    E?.hasError ?? !1,
-                    E?.wasExecuted ?? !0,
-                    o
+                bgColor: m ? "#111827" : "#f8fafc",
+                maskColor: m ? "rgba(0, 0, 0, 0.5)" : "rgba(240, 240, 240, 0.6)",
+                nodeColor: (b) => {
+                  const z = b.data;
+                  return ee(
+                    z?.state?.type ?? "",
+                    z?.hasError ?? !1,
+                    z?.wasExecuted ?? !0,
+                    s
                   );
                 }
               }
             ),
-            /* @__PURE__ */ e(re, { variant: "dots", gap: 16, size: 1, color: "#d1d5db" })
+            /* @__PURE__ */ e(ue, { variant: "dots", gap: 16, size: 1, color: m ? "#374151" : "#d1d5db" })
           ]
         },
-        `workflow-${v.length}-${N.length}`
+        `workflow-${g.length}-${v.length}`
       )
     }
   ) });
-}, pe = ({ isOpen: a, nodeData: h, onClose: m }) => {
-  const [s, d] = k.useState({
+}, ke = ({ isOpen: a, nodeData: l, onClose: p, darkMode: h = !1 }) => {
+  const [d, m] = $.useState({
     isOpen: !1,
     title: "",
     data: null,
     subtitle: ""
   });
-  if (!a || !h) return null;
-  const { label: u, state: i, duration: f, hasError: c, wasExecuted: o } = h, n = i.execution, l = i.definition, b = (r, g) => !r || !g ? !1 : r.toLowerCase().includes(g.toLowerCase()), v = (() => {
-    if (!c || !l.onErrors || !n) return null;
-    const r = n.error || n.actions?.find((w) => w.error)?.error;
-    if (!r) return null;
-    const g = l.onErrors.find(
-      (w) => w.errorRef !== "DefaultErrorRef" && b(r, w.errorRef)
+  if (!a || !l) return null;
+  const { label: n, state: f, duration: c, hasError: u, wasExecuted: r } = l, s = f.execution, o = f.definition, C = (i, v) => !i || !v ? !1 : i.toLowerCase().includes(v.toLowerCase()), x = (() => {
+    if (!u || !o.onErrors || !s) return null;
+    const i = s.error || s.actions?.find((w) => w.error)?.error;
+    if (!i) return null;
+    const v = o.onErrors.find(
+      (w) => w.errorRef !== "DefaultErrorRef" && C(i, w.errorRef)
     );
-    return g || l.onErrors.find((w) => w.errorRef === "DefaultErrorRef");
-  })(), y = (r, g, w) => {
-    d({ isOpen: !0, title: r, data: g, subtitle: w });
-  }, S = () => {
-    d({ isOpen: !1, title: "", data: null, subtitle: "" });
+    return v || o.onErrors.find((w) => w.errorRef === "DefaultErrorRef");
+  })(), S = (i, v, w) => {
+    m({ isOpen: !0, title: i, data: v, subtitle: w });
+  }, g = () => {
+    m({ isOpen: !1, title: "", data: null, subtitle: "" });
   };
-  return /* @__PURE__ */ e(O, { children: a && /* @__PURE__ */ t(O, { children: [
-    /* @__PURE__ */ e("div", { className: "panel-overlay", onClick: m }),
+  return /* @__PURE__ */ e(D, { children: a && /* @__PURE__ */ t(D, { children: [
+    /* @__PURE__ */ e("div", { className: "panel-overlay", onClick: p }),
     /* @__PURE__ */ t("div", { className: "node-detail-panel open", children: [
       /* @__PURE__ */ t("div", { className: "panel-header", children: [
         /* @__PURE__ */ t("div", { className: "panel-title", children: [
           /* @__PURE__ */ t("div", { className: "title-main", children: [
-            o ? /* @__PURE__ */ e(U, { size: 18, className: "success-icon" }) : /* @__PURE__ */ e(A, { size: 18, className: "unexecuted-icon" }),
+            r ? /* @__PURE__ */ e(q, { size: 18, className: "success-icon" }) : /* @__PURE__ */ e(L, { size: 18, className: "unexecuted-icon" }),
             (() => {
-              const r = { size: 20 };
-              switch (i.type) {
+              const i = { size: 20 };
+              switch (f.type) {
                 case "operation":
-                  return /* @__PURE__ */ e(z, { ...r });
+                  return /* @__PURE__ */ e(A, { ...i });
                 case "switch":
-                  return /* @__PURE__ */ e(D, { ...r });
+                  return /* @__PURE__ */ e(I, { ...i });
                 default:
-                  return /* @__PURE__ */ e(G, { ...r });
+                  return /* @__PURE__ */ e(Q, { ...i });
               }
             })(),
-            /* @__PURE__ */ e("span", { className: "node-name", children: u }),
-            c && /* @__PURE__ */ e(R, { size: 18, className: "error-icon" })
+            /* @__PURE__ */ e("span", { className: "node-name", children: n }),
+            u && /* @__PURE__ */ e(P, { size: 18, className: "error-icon" })
           ] }),
           /* @__PURE__ */ t("div", { className: "title-meta", children: [
-            /* @__PURE__ */ e("span", { className: `node-status ${o ? "executed" : "unexecuted"}`, children: o ? "Executed" : "Not Executed" }),
-            /* @__PURE__ */ e("span", { className: "node-type-badge", children: i.type })
+            /* @__PURE__ */ e("span", { className: `node-status ${r ? "executed" : "unexecuted"}`, children: r ? "Executed" : "Not Executed" }),
+            /* @__PURE__ */ e("span", { className: "node-type-badge", children: f.type })
           ] })
         ] }),
-        /* @__PURE__ */ e("button", { className: "panel-close", onClick: m, children: /* @__PURE__ */ e(B, { size: 20 }) })
+        /* @__PURE__ */ e("button", { className: "panel-close", onClick: p, children: /* @__PURE__ */ e(X, { size: 20 }) })
       ] }),
       /* @__PURE__ */ t("div", { className: "panel-content", children: [
         /* @__PURE__ */ t("div", { className: "detail-section", children: [
           /* @__PURE__ */ e("h3", { children: "Execution Summary" }),
           /* @__PURE__ */ t("div", { className: "summary-grid", children: [
             /* @__PURE__ */ t("div", { className: "summary-item", children: [
-              /* @__PURE__ */ e(Z, { size: 16 }),
+              /* @__PURE__ */ e(Y, { size: 16 }),
               /* @__PURE__ */ e("span", { className: "label", children: "Duration" }),
-              /* @__PURE__ */ e("span", { className: "value", children: o ? W(f) : "N/A" })
+              /* @__PURE__ */ e("span", { className: "value", children: r ? M(c) : "N/A" })
             ] }),
-            n?.actions && /* @__PURE__ */ t("div", { className: "summary-item", children: [
-              /* @__PURE__ */ e(z, { size: 16 }),
+            s?.actions && /* @__PURE__ */ t("div", { className: "summary-item", children: [
+              /* @__PURE__ */ e(A, { size: 16 }),
               /* @__PURE__ */ e("span", { className: "label", children: "Actions" }),
-              /* @__PURE__ */ e("span", { className: "value", children: n.actions.length })
+              /* @__PURE__ */ e("span", { className: "value", children: s.actions.length })
             ] }),
-            !o && l.actions && /* @__PURE__ */ t("div", { className: "summary-item", children: [
-              /* @__PURE__ */ e(z, { size: 16 }),
+            !r && o.actions && /* @__PURE__ */ t("div", { className: "summary-item", children: [
+              /* @__PURE__ */ e(A, { size: 16 }),
               /* @__PURE__ */ e("span", { className: "label", children: "Planned Actions" }),
-              /* @__PURE__ */ e("span", { className: "value", children: l.actions.length })
+              /* @__PURE__ */ e("span", { className: "value", children: o.actions.length })
             ] })
           ] })
         ] }),
-        i.type === "switch" && /* @__PURE__ */ t("div", { className: "detail-section", children: [
+        f.type === "switch" && /* @__PURE__ */ t("div", { className: "detail-section", children: [
           /* @__PURE__ */ e("h3", { children: "Switch Conditions" }),
-          o && n?.matchedCondition ? /* @__PURE__ */ e("div", { className: "condition-result", children: /* @__PURE__ */ t("div", { className: "matched-condition", children: [
-            /* @__PURE__ */ e(de, { size: 16, className: "success-icon" }),
+          r && s?.matchedCondition ? /* @__PURE__ */ e("div", { className: "condition-result", children: /* @__PURE__ */ t("div", { className: "matched-condition", children: [
+            /* @__PURE__ */ e(pe, { size: 16, className: "success-icon" }),
             /* @__PURE__ */ t("span", { children: [
               "Matched: ",
-              /* @__PURE__ */ e("strong", { children: n.matchedCondition })
+              /* @__PURE__ */ e("strong", { children: s.matchedCondition })
             ] })
           ] }) }) : null,
-          l.dataConditions && /* @__PURE__ */ t("div", { className: "conditions-list", children: [
-            l.dataConditions.map((r, g) => /* @__PURE__ */ t(
+          o.dataConditions && /* @__PURE__ */ t("div", { className: "conditions-list", children: [
+            o.dataConditions.map((i, v) => /* @__PURE__ */ t(
               "div",
               {
-                className: `condition-item ${o && n?.matchedCondition === r.name ? "matched" : "unmatched"}`,
+                className: `condition-item ${r && (s?.matchedCondition === i.name || s?.matchedCondition === i.condition) ? "matched" : "unmatched"}`,
                 children: [
                   /* @__PURE__ */ t("div", { className: "condition-header", children: [
-                    /* @__PURE__ */ e("span", { className: "condition-name", children: r.name }),
-                    o && n?.matchedCondition === r.name && /* @__PURE__ */ e("span", { className: "condition-badge", children: "Matched" })
+                    /* @__PURE__ */ e("span", { className: "condition-name", children: i.name ?? i.condition }),
+                    r && (s?.matchedCondition === i.name || s?.matchedCondition === i.condition) && /* @__PURE__ */ e("span", { className: "condition-badge", children: "Matched" })
                   ] }),
-                  /* @__PURE__ */ e("div", { className: "condition-expression", children: r.condition }),
+                  /* @__PURE__ */ e("div", { className: "condition-expression", children: i.condition }),
                   /* @__PURE__ */ t("div", { className: "condition-target", children: [
                     "→ ",
-                    r.transition.nextState
+                    typeof i.transition == "string" ? i.transition : i.transition.nextState
                   ] })
                 ]
               },
-              g
+              v
             )),
-            l.defaultCondition && /* @__PURE__ */ t(
+            o.defaultCondition && /* @__PURE__ */ t(
               "div",
               {
-                className: `condition-item ${o && n?.matchedCondition === "default" ? "matched" : "unmatched"}`,
+                className: `condition-item ${r && s?.matchedCondition === "default" ? "matched" : "unmatched"}`,
                 children: [
                   /* @__PURE__ */ t("div", { className: "condition-header", children: [
                     /* @__PURE__ */ e("span", { className: "condition-name", children: "default" }),
-                    o && n?.matchedCondition === "default" && /* @__PURE__ */ e("span", { className: "condition-badge", children: "Matched" })
+                    r && s?.matchedCondition === "default" && /* @__PURE__ */ e("span", { className: "condition-badge", children: "Matched" })
                   ] }),
                   /* @__PURE__ */ e("div", { className: "condition-expression", children: "fallback condition" }),
                   /* @__PURE__ */ t("div", { className: "condition-target", children: [
                     "→ ",
-                    l.defaultCondition.transition.nextState
+                    typeof o.defaultCondition.transition == "string" ? o.defaultCondition.transition : o.defaultCondition.transition.nextState
                   ] })
                 ]
               }
             )
           ] })
         ] }),
-        l.onErrors && /* @__PURE__ */ t("div", { className: "detail-section", children: [
+        o.onErrors && /* @__PURE__ */ t("div", { className: "detail-section", children: [
           /* @__PURE__ */ e("h3", { children: "Error Handlers" }),
-          c && v && /* @__PURE__ */ e("div", { className: "error-handler-result", children: /* @__PURE__ */ t("div", { className: "triggered-handler", children: [
-            /* @__PURE__ */ e(F, { size: 16, className: "error-icon" }),
+          u && x && /* @__PURE__ */ e("div", { className: "error-handler-result", children: /* @__PURE__ */ t("div", { className: "triggered-handler", children: [
+            /* @__PURE__ */ e(J, { size: 16, className: "error-icon" }),
             /* @__PURE__ */ t("span", { children: [
               "Triggered: ",
-              /* @__PURE__ */ e("strong", { children: v.errorRef })
+              /* @__PURE__ */ e("strong", { children: x.errorRef })
             ] })
           ] }) }),
-          /* @__PURE__ */ e("div", { className: "error-handlers-list", children: l.onErrors.map((r, g) => {
-            const w = c && v?.errorRef === r.errorRef, T = typeof r.transition == "string" ? r.transition : r.transition.nextState;
+          /* @__PURE__ */ e("div", { className: "error-handlers-list", children: o.onErrors.map((i, v) => {
+            const w = u && x?.errorRef === i.errorRef, W = typeof i.transition == "string" ? i.transition : i.transition.nextState;
             return /* @__PURE__ */ t(
               "div",
               {
@@ -631,29 +650,29 @@ const C = {
                 children: [
                   /* @__PURE__ */ t("div", { className: "error-handler-header", children: [
                     /* @__PURE__ */ t("div", { className: "error-handler-name", children: [
-                      w ? /* @__PURE__ */ e(F, { size: 16, className: "error-icon" }) : /* @__PURE__ */ e(le, { size: 16, className: "shield-icon" }),
-                      /* @__PURE__ */ e("span", { children: r.errorRef })
+                      w ? /* @__PURE__ */ e(J, { size: 16, className: "error-icon" }) : /* @__PURE__ */ e(Ne, { size: 16, className: "shield-icon" }),
+                      /* @__PURE__ */ e("span", { children: i.errorRef })
                     ] }),
                     w && /* @__PURE__ */ e("span", { className: "error-handler-badge", children: "Triggered" })
                   ] }),
                   /* @__PURE__ */ t("div", { className: "error-handler-target", children: [
                     "→ ",
-                    T
+                    W
                   ] })
                 ]
               },
-              g
+              v
             );
           }) })
         ] }),
-        (o && n?.actions || !o && l.actions) && /* @__PURE__ */ t("div", { className: "detail-section", children: [
-          /* @__PURE__ */ e("h3", { children: o ? "Executed Actions" : "Planned Actions" }),
-          /* @__PURE__ */ e("div", { className: "actions-detail", children: o && n?.actions ? n.actions.map((r, g) => /* @__PURE__ */ t("div", { className: "action-detail-item", children: [
+        (r && s?.actions || !r && o.actions) && /* @__PURE__ */ t("div", { className: "detail-section", children: [
+          /* @__PURE__ */ e("h3", { children: r ? "Executed Actions" : "Planned Actions" }),
+          /* @__PURE__ */ e("div", { className: "actions-detail", children: r && s?.actions ? s.actions.map((i, v) => /* @__PURE__ */ t("div", { className: "action-detail-item", children: [
             /* @__PURE__ */ t("div", { className: "action-header", children: [
-              /* @__PURE__ */ e("span", { className: "action-name", children: r.activityName }),
+              /* @__PURE__ */ e("span", { className: "action-name", children: i.activityName }),
               /* @__PURE__ */ t("div", { className: "action-meta", children: [
-                /* @__PURE__ */ e("span", { className: "action-duration", children: W(new Date(r.endTime).getTime() - new Date(r.startTime).getTime()) }),
-                r.error && /* @__PURE__ */ e(R, { size: 14, className: "error-icon" })
+                /* @__PURE__ */ e("span", { className: "action-duration", children: M(new Date(i.endTime).getTime() - new Date(i.startTime).getTime()) }),
+                i.error && /* @__PURE__ */ e(P, { size: 14, className: "error-icon" })
               ] })
             ] }),
             /* @__PURE__ */ t("div", { className: "action-buttons", children: [
@@ -661,13 +680,13 @@ const C = {
                 "button",
                 {
                   className: "detail-button",
-                  onClick: () => y(
-                    `${u} > ${r.activityName} - Arguments`,
-                    r.arguments,
+                  onClick: () => S(
+                    `${n} > ${i.activityName} - Arguments`,
+                    i.arguments,
                     "Action input arguments"
                   ),
                   children: [
-                    /* @__PURE__ */ e($, { size: 14 }),
+                    /* @__PURE__ */ e(R, { size: 14 }),
                     "Arguments"
                   ]
                 }
@@ -675,44 +694,44 @@ const C = {
               /* @__PURE__ */ t(
                 "button",
                 {
-                  className: `detail-button ${r.error ? "error" : ""}`,
-                  onClick: () => y(
-                    `${u} > ${r.activityName} - ${r.error ? "Error" : "Output"}`,
-                    r.output || r.error,
-                    r.error ? "Action error details" : "Action output data"
+                  className: `detail-button ${i.error ? "error" : ""}`,
+                  onClick: () => S(
+                    `${n} > ${i.activityName} - ${i.error ? "Error" : "Output"}`,
+                    i.output || i.error,
+                    i.error ? "Action error details" : "Action output data"
                   ),
                   children: [
-                    /* @__PURE__ */ e($, { size: 14 }),
-                    r.error ? "Error" : "Output"
+                    /* @__PURE__ */ e(R, { size: 14 }),
+                    i.error ? "Error" : "Output"
                   ]
                 }
               )
             ] })
-          ] }, g)) : l.actions?.map((r, g) => /* @__PURE__ */ t("div", { className: "action-detail-item planned", children: [
+          ] }, v)) : o.actions?.map((i, v) => /* @__PURE__ */ t("div", { className: "action-detail-item planned", children: [
             /* @__PURE__ */ t("div", { className: "action-header", children: [
-              /* @__PURE__ */ e("span", { className: "action-name", children: r.functionRef.refName }),
+              /* @__PURE__ */ e("span", { className: "action-name", children: i.functionRef.refName }),
               /* @__PURE__ */ e("div", { className: "action-meta", children: /* @__PURE__ */ e("span", { className: "action-duration", children: "planned" }) })
             ] }),
             /* @__PURE__ */ e("div", { className: "action-buttons", children: /* @__PURE__ */ t(
               "button",
               {
                 className: "detail-button",
-                onClick: () => y(
-                  `${u} > ${r.functionRef.refName} - Arguments`,
-                  r.functionRef.arguments,
+                onClick: () => S(
+                  `${n} > ${i.functionRef.refName} - Arguments`,
+                  i.functionRef.arguments,
                   "Planned action arguments"
                 ),
                 children: [
-                  /* @__PURE__ */ e($, { size: 14 }),
+                  /* @__PURE__ */ e(R, { size: 14 }),
                   "Arguments"
                 ]
               }
             ) })
-          ] }, g)) })
+          ] }, v)) })
         ] }),
         /* @__PURE__ */ t("div", { className: "detail-section", children: [
           /* @__PURE__ */ e("h3", { children: "Data" }),
-          /* @__PURE__ */ e("div", { className: "data-detail", children: o && n ? /* @__PURE__ */ t(O, { children: [
+          /* @__PURE__ */ e("div", { className: "data-detail", children: r && s ? /* @__PURE__ */ t(D, { children: [
             /* @__PURE__ */ t("div", { className: "data-item", children: [
               /* @__PURE__ */ t("div", { className: "data-header", children: [
                 /* @__PURE__ */ e("span", { children: "Input Data" }),
@@ -720,18 +739,18 @@ const C = {
                   "button",
                   {
                     className: "detail-button small",
-                    onClick: () => y(`${u} - Input`, n.input, "State input data"),
+                    onClick: () => S(`${n} - Input`, s.input, "State input data"),
                     children: [
-                      /* @__PURE__ */ e($, { size: 12 }),
+                      /* @__PURE__ */ e(R, { size: 12 }),
                       "View Full"
                     ]
                   }
                 )
               ] }),
-              /* @__PURE__ */ t("pre", { className: "data-preview", children: [
-                JSON.stringify(n.input, null, 2).substring(0, 200),
-                "..."
-              ] })
+              /* @__PURE__ */ e("pre", { className: "data-preview", children: (() => {
+                const i = JSON.stringify(s.input ?? null, null, 2);
+                return i.length > 200 ? i.substring(0, 200) + "..." : i;
+              })() })
             ] }),
             /* @__PURE__ */ t("div", { className: "data-item", children: [
               /* @__PURE__ */ t("div", { className: "data-header", children: [
@@ -740,18 +759,18 @@ const C = {
                   "button",
                   {
                     className: "detail-button small",
-                    onClick: () => y(`${u} - Output`, n.output, "State output data"),
+                    onClick: () => S(`${n} - Output`, s.output, "State output data"),
                     children: [
-                      /* @__PURE__ */ e($, { size: 12 }),
+                      /* @__PURE__ */ e(R, { size: 12 }),
                       "View Full"
                     ]
                   }
                 )
               ] }),
-              /* @__PURE__ */ t("pre", { className: "data-preview", children: [
-                JSON.stringify(n.output, null, 2).substring(0, 200),
-                "..."
-              ] })
+              /* @__PURE__ */ e("pre", { className: "data-preview", children: (() => {
+                const i = JSON.stringify(s.output ?? null, null, 2);
+                return i.length > 200 ? i.substring(0, 200) + "..." : i;
+              })() })
             ] })
           ] }) : /* @__PURE__ */ t("div", { className: "data-item", children: [
             /* @__PURE__ */ t("div", { className: "data-header", children: [
@@ -760,103 +779,108 @@ const C = {
                 "button",
                 {
                   className: "detail-button small",
-                  onClick: () => y(`${u} - Definition`, l, "State definition"),
+                  onClick: () => S(`${n} - Definition`, o, "State definition"),
                   children: [
-                    /* @__PURE__ */ e($, { size: 12 }),
+                    /* @__PURE__ */ e(R, { size: 12 }),
                     "View Full"
                   ]
                 }
               )
             ] }),
-            /* @__PURE__ */ t("pre", { className: "data-preview", children: [
-              JSON.stringify(l, null, 2).substring(0, 200),
-              "..."
-            ] })
+            /* @__PURE__ */ e("pre", { className: "data-preview", children: (() => {
+              const i = JSON.stringify(o ?? null, null, 2);
+              return i.length > 200 ? i.substring(0, 200) + "..." : i;
+            })() })
           ] }) })
         ] }),
-        c && o && n && /* @__PURE__ */ t("div", { className: "detail-section error-section", children: [
+        u && r && s && /* @__PURE__ */ t("div", { className: "detail-section error-section", children: [
           /* @__PURE__ */ e("h3", { children: "Error Details" }),
           /* @__PURE__ */ t("div", { className: "error-details", children: [
-            n.error && /* @__PURE__ */ e("div", { className: "error-message", children: n.error }),
-            n.actions?.map(
-              (r, g) => r.error && /* @__PURE__ */ t("div", { className: "error-message", children: [
+            s.error && /* @__PURE__ */ e("div", { className: "error-message", children: s.error }),
+            s.actions?.map(
+              (i, v) => i.error && /* @__PURE__ */ t("div", { className: "error-message", children: [
                 /* @__PURE__ */ t("strong", { children: [
-                  r.activityName,
+                  i.activityName,
                   ":"
                 ] }),
                 " ",
-                r.error
-              ] }, g)
+                i.error
+              ] }, v)
             )
           ] })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ e(
-      X,
+      te,
       {
-        isOpen: s.isOpen,
-        onClose: S,
-        title: s.title,
-        data: s.data,
-        subtitle: s.subtitle
+        isOpen: d.isOpen,
+        onClose: g,
+        title: d.title,
+        data: d.data,
+        subtitle: d.subtitle,
+        darkMode: h
       }
     )
   ] }) });
-}, Ee = ({
-  data: a,
-  onNodeClick: h,
-  showDetailPanel: m = !0,
-  renderDetailPanel: s,
-  theme: d,
-  fitView: u = !0,
-  minZoom: i = 0.3,
-  maxZoom: f = 2,
-  className: c,
-  style: o
+}, Re = ({
+  workflow: a,
+  execution: l,
+  onNodeClick: p,
+  showDetailPanel: h = !0,
+  renderDetailPanel: d,
+  theme: m,
+  darkMode: n = !1,
+  fitView: f = !0,
+  minZoom: c = 0.3,
+  maxZoom: u = 2,
+  className: r,
+  style: s
 }) => {
-  const [n, l] = k.useState({
+  const [o, C] = $.useState({
     isOpen: !1,
     nodeData: null,
     selectedNodeId: null
-  }), b = k.useCallback((v, y) => {
-    h?.(v), (m || s) && l({ isOpen: !0, nodeData: v, selectedNodeId: y });
-  }, [h, m, s]), x = k.useCallback(() => {
-    l({ isOpen: !1, nodeData: null, selectedNodeId: null });
-  }, []);
-  return /* @__PURE__ */ t("div", { style: { width: "100%", height: "100%", minHeight: "400px", ...o }, className: c, children: [
+  }), E = $.useCallback((g, y) => {
+    p?.(g), (h || d) && C({ isOpen: !0, nodeData: g, selectedNodeId: y });
+  }, [p, h, d]), x = $.useCallback(() => {
+    C({ isOpen: !1, nodeData: null, selectedNodeId: null });
+  }, []), S = ["wf-root", n ? "wf-dark" : "", r].filter(Boolean).join(" ");
+  return /* @__PURE__ */ t("div", { style: { width: "100%", height: "100%", minHeight: "400px", ...s }, className: S, children: [
     /* @__PURE__ */ e(
-      fe,
+      Se,
       {
-        data: a,
-        onNodeClick: b,
-        selectedNodeId: n.selectedNodeId,
-        theme: d,
-        fitView: u,
-        minZoom: i,
-        maxZoom: f
+        workflow: a,
+        execution: l,
+        onNodeClick: E,
+        selectedNodeId: o.selectedNodeId,
+        theme: m,
+        darkMode: n,
+        fitView: f,
+        minZoom: c,
+        maxZoom: u
       }
     ),
-    s && n.isOpen && n.nodeData ? s(n.nodeData, x) : m && /* @__PURE__ */ e(
-      pe,
+    d && o.isOpen && o.nodeData ? d(o.nodeData, x) : h && /* @__PURE__ */ e(
+      ke,
       {
-        isOpen: n.isOpen,
-        nodeData: n.nodeData,
-        onClose: x
+        isOpen: o.isOpen,
+        nodeData: o.nodeData,
+        onClose: x,
+        darkMode: n
       }
     )
   ] });
 };
 export {
-  X as JsonModal,
-  pe as NodeDetailPanel,
-  fe as WorkflowGraph,
-  he as WorkflowNode,
-  Ee as WorkflowVisualizer,
-  be as combineWorkflowData,
-  W as formatDuration,
-  _ as getNodeTypeColor,
-  V as parseCombinedWorkflowData,
-  J as parseWorkflowData
+  te as JsonModal,
+  ke as NodeDetailPanel,
+  Se as WorkflowGraph,
+  be as WorkflowNode,
+  Re as WorkflowVisualizer,
+  U as combineWorkflowData,
+  M as formatDuration,
+  ee as getNodeTypeColor,
+  B as parseCombinedWorkflowData
 };
 //# sourceMappingURL=datadancer-visualizer.js.map

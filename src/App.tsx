@@ -36,9 +36,12 @@ function App() {
             )}
           </svg>
         </button>
-        {workflowData && (
+        {'definition' in (workflowData ?? {}) && (
           <div className="visualizer-container">
-            <WorkflowVisualizer data={workflowData} />
+            <WorkflowVisualizer
+              workflow={(workflowData as CombinedWorkflowData).definition}
+              execution={(workflowData as CombinedWorkflowData).execution}
+            />
           </div>
         )}
       </div>

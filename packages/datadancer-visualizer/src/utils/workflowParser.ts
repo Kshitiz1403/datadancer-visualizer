@@ -348,6 +348,10 @@ export const combineWorkflowData = (
   definition: WorkflowDefinition,
   execution?: WorkflowDebugData
 ): CombinedWorkflowData => {
+  if (!definition) {
+    return { definition: definition as any, execution, states: [], startState: '' };
+  }
+
   const executionMap = new Map<string, any>();
 
   if (execution) {
@@ -356,7 +360,7 @@ export const combineWorkflowData = (
     });
   }
 
-  const states = definition.states.map(defState => {
+  const states = (definition.states ?? []).map(defState => {
     const executionState = executionMap.get(defState.name);
     const wasExecuted = !!executionState;
     const hasError = wasExecuted
