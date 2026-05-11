@@ -1,8 +1,10 @@
 import { default as React } from 'react';
-import { WorkflowDebugData, CombinedWorkflowData, NodeData, WorkflowTheme } from '../types';
+import { WorkflowDebugData, WorkflowDefinition, NodeData, WorkflowTheme } from '../types';
 export interface WorkflowVisualizerProps {
-    /** Workflow data to render — either combined definition+execution or execution-only. */
-    data: WorkflowDebugData | CombinedWorkflowData;
+    /** Workflow definition (structure). */
+    workflow: WorkflowDefinition;
+    /** Execution trace from a workflow run. Omit to render definition-only. */
+    execution?: WorkflowDebugData;
     /** Called when a node is clicked (fires alongside the built-in detail panel). */
     onNodeClick?: (nodeData: NodeData) => void;
     /**
@@ -18,6 +20,8 @@ export interface WorkflowVisualizerProps {
     renderDetailPanel?: (nodeData: NodeData, onClose: () => void) => React.ReactNode;
     /** Override default node/edge colors. */
     theme?: Partial<WorkflowTheme>;
+    /** Enable dark mode. */
+    darkMode?: boolean;
     /** Auto-fit the graph on data load (default: true). */
     fitView?: boolean;
     /** Minimum zoom level (default: 0.3). */

@@ -114,7 +114,6 @@ export const parseWorkflowData = (data: WorkflowDebugData): { nodes: Node[], edg
       type: 'workflowNode',
       position: { x, y },
       data: nodeData,
-      draggable: true
     });
 
     if (index < data.states.length - 1) {
@@ -131,7 +130,7 @@ export const parseWorkflowData = (data: WorkflowDebugData): { nodes: Node[], edg
         animated: !hasError,
         style: {
           stroke: strokeColor,
-          strokeWidth: 2,
+          strokeWidth: 3,
           strokeDasharray: hasError ? '5,5' : undefined
         }
       });
@@ -165,12 +164,14 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
     if (state.definition.type === 'switch') {
       if (state.definition.dataConditions) {
         state.definition.dataConditions.forEach(condition => {
-          layoutStates(condition.transition.nextState, visited, level + 1, position + nextPosition);
+          const nextState = typeof condition.transition === 'string' ? condition.transition : condition.transition.nextState;
+          layoutStates(nextState, visited, level + 1, position + nextPosition);
           nextPosition++;
         });
       }
       if (state.definition.defaultCondition) {
-        layoutStates(state.definition.defaultCondition.transition.nextState, visited, level + 1, position + nextPosition);
+        const defaultNextState = typeof state.definition.defaultCondition.transition === 'string' ? state.definition.defaultCondition.transition : state.definition.defaultCondition.transition.nextState;
+        layoutStates(defaultNextState, visited, level + 1, position + nextPosition);
         nextPosition++;
       }
     } else {
@@ -208,7 +209,6 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
       type: 'workflowNode',
       position,
       data: nodeData,
-      draggable: true,
       className: state.wasExecuted ? 'executed-node' : 'unexecuted-node'
     });
   });
@@ -218,20 +218,24 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
 
     if (state.definition.type === 'switch') {
       if (state.definition.dataConditions) {
-        state.definition.dataConditions.forEach(condition => {
-          const targetId = `state-${condition.transition.nextState}`;
-          const isExecutedPath = state.wasExecuted && state.execution?.matchedCondition === condition.name;
+        state.definition.dataConditions.forEach((condition, index) => {
+          const conditionNextState = typeof condition.transition === 'string' ? condition.transition : condition.transition.nextState;
+          const targetId = `state-${conditionNextState}`;
+          const conditionKey = condition.name ?? condition.condition;
+          const matched = state.execution?.matchedCondition;
+          const isExecutedPath = state.wasExecuted && !!(matched && (matched === condition.name || matched === condition.condition));
 
           edges.push({
-            id: `edge-${state.name}-${condition.name}`,
+            id: `edge-${state.name}-${conditionKey}`,
             source: sourceId,
+            sourceHandle: `condition-${index}`,
             target: targetId,
             type: 'default',
-            label: condition.name,
+            label: conditionKey,
             animated: isExecutedPath,
             style: {
               stroke: isExecutedPath ? DEFAULT_COLORS.switch : '#d1d5db',
-              strokeWidth: isExecutedPath ? 2 : 1,
+              strokeWidth: isExecutedPath ? 3 : 2,
               strokeDasharray: !isExecutedPath ? '5,5' : undefined
             },
             labelStyle: {
@@ -244,19 +248,20 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
       }
 
       if (state.definition.defaultCondition) {
-        const targetId = `state-${state.definition.defaultCondition.transition.nextState}`;
+        const targetId = `state-${typeof state.definition.defaultCondition.transition === 'string' ? state.definition.defaultCondition.transition : state.definition.defaultCondition.transition.nextState}`;
         const isExecutedPath = state.wasExecuted && state.execution?.matchedCondition === 'default';
 
         edges.push({
           id: `edge-${state.name}-default`,
           source: sourceId,
+          sourceHandle: 'condition-default',
           target: targetId,
           type: 'default',
           label: 'default',
           animated: isExecutedPath,
           style: {
             stroke: isExecutedPath ? DEFAULT_COLORS.switch : '#d1d5db',
-            strokeWidth: isExecutedPath ? 2 : 1,
+            strokeWidth: isExecutedPath ? 3 : 2,
             strokeDasharray: !isExecutedPath ? '5,5' : undefined
           },
           labelStyle: {
@@ -284,7 +289,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
           animated: isExecutedPath,
           style: {
             stroke: strokeColor,
-            strokeWidth: isExecutedPath ? 2 : 1,
+            strokeWidth: isExecutedPath ? 3 : 2,
             strokeDasharray: !isExecutedPath ? '5,5' : undefined
           }
         });
@@ -298,7 +303,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
           type: 'default',
           label: `error: ${triggeredErrorHandler.errorHandler.errorRef}`,
           animated: true,
-          style: { stroke: DEFAULT_COLORS.error, strokeWidth: 2, strokeDasharray: '3,3' },
+          style: { stroke: DEFAULT_COLORS.error, strokeWidth: 3, strokeDasharray: '3,3' },
           labelStyle: { fontSize: 10, fontWeight: 600, fill: DEFAULT_COLORS.error }
         });
 
@@ -312,7 +317,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
                 type: 'default',
                 label: `error: ${errorHandler.errorRef}`,
                 animated: false,
-                style: { stroke: '#d1d5db', strokeWidth: 1, strokeDasharray: '5,5' },
+                style: { stroke: '#d1d5db', strokeWidth: 2, strokeDasharray: '5,5' },
                 labelStyle: { fontSize: 10, fontWeight: 400, fill: '#6b7280' }
               });
             }
@@ -327,7 +332,7 @@ export const parseCombinedWorkflowData = (combinedData: CombinedWorkflowData): {
             type: 'default',
             label: `error: ${errorHandler.errorRef}`,
             animated: false,
-            style: { stroke: '#d1d5db', strokeWidth: 1, strokeDasharray: '5,5' },
+            style: { stroke: '#d1d5db', strokeWidth: 2, strokeDasharray: '5,5' },
             labelStyle: { fontSize: 10, fontWeight: 400, fill: '#6b7280' }
           });
         });
@@ -343,6 +348,10 @@ export const combineWorkflowData = (
   definition: WorkflowDefinition,
   execution?: WorkflowDebugData
 ): CombinedWorkflowData => {
+  if (!definition) {
+    return { definition: definition as any, execution, states: [], startState: '' };
+  }
+
   const executionMap = new Map<string, any>();
 
   if (execution) {
@@ -351,7 +360,7 @@ export const combineWorkflowData = (
     });
   }
 
-  const states = definition.states.map(defState => {
+  const states = (definition.states ?? []).map(defState => {
     const executionState = executionMap.get(defState.name);
     const wasExecuted = !!executionState;
     const hasError = wasExecuted

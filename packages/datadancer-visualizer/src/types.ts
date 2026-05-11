@@ -31,11 +31,11 @@ export interface WorkflowDefinitionAction {
 }
 
 export interface WorkflowCondition {
-  name: string;
+  name?: string;
   condition: string;
   transition: {
     nextState: string;
-  };
+  } | string;
 }
 
 export interface WorkflowOnError {
@@ -56,7 +56,7 @@ export interface WorkflowDefinitionState {
   defaultCondition?: {
     transition: {
       nextState: string;
-    };
+    } | string;
   };
   onErrors?: WorkflowOnError[];
   end?: boolean;
